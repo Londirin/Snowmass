@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f2f6fb;
+  color: #13223a;
+}
+
+.container {
+  max-width: 980px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.subtitle {
+  margin-top: -0.5rem;
+  color: #42536d;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 6px 22px rgba(13, 27, 53, 0.08);
+  margin-bottom: 1rem;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+select,
+button,
+input[type="range"] {
+  font: inherit;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.slider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+button {
+  max-width: 260px;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  background: #0a66e8;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.result-card {
+  border: 1px solid #dde7f3;
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+
+.hidden {
+  display: none;
+}
