@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snowmass Pod Recommendation MVP</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Snowmass Pod Planner</h1>
+      <p class="subtitle">Forecast-aware pod recommendations with strict constraints.</p>
+
+      <section class="card">
+        <h2>Data Sources</h2>
+        <div class="sources-grid">
+          <div>Open-Meteo: <strong id="open-meteo-status">...</strong></div>
+          <div>Aspen Raw: <strong id="aspen-raw-status">...</strong></div>
+          <div>Resort Station Time: <strong id="station-timestamp">-</strong></div>
+        </div>
+        <button id="refresh-sources" type="button">Refresh Sources</button>
+      </section>
+
+      <section class="card">
+        <h2>Constraints & Preferences</h2>
+        <form id="recommend-form">
+          <label>
+            Max Difficulty
+            <select id="max_difficulty" required>
+              <option value="green">Green</option>
+              <option value="blue" selected>Blue</option>
+              <option value="black">Black</option>
+              <option value="double_black">Double Black</option>
+            </select>
+          </label>
+
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="groomers_only" /> Groomers only</label>
+            <label><input type="checkbox" id="no_moguls" /> No moguls</label>
+            <label><input type="checkbox" id="low_visibility_only" /> Low visibility only</label>
+          </div>
+
+          <div class="slider-grid">
+            <label>Prefer Trees: <span id="prefer_trees_value">1.0</span>
+              <input type="range" id="prefer_trees" min="0" max="2" step="0.1" value="1.0" />
+            </label>
+            <label>Prefer Groomers: <span id="prefer_groomers_value">1.0</span>
+              <input type="range" id="prefer_groomers" min="0" max="2" step="0.1" value="1.0" />
+            </label>
+            <label>Avoid Crowds: <span id="avoid_crowds_value">1.0</span>
+              <input type="range" id="avoid_crowds" min="0" max="2" step="0.1" value="1.0" />
+            </label>
+          </div>
+
+          <button type="submit">Generate Today's Plan</button>
+        </form>
+      </section>
+
+      <section id="results" class="card hidden">
+        <h2>Morning Brief</h2>
+        <p id="brief"></p>
+        <div id="recommendations" class="cards"></div>
+        <h3>Excluded Pods</h3>
+        <ul id="excluded"></ul>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
