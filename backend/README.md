@@ -1,6 +1,6 @@
 # Snowmass Pod Recommender Backend
 
-FastAPI service that recommends Snowmass ski pods using strict constraints and dual weather sources.
+FastAPI service that recommends Snowmass ski pods using strict user constraints and forecast-driven scoring.
 
 ## Requirements
 - Python 3.11+
@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## Run
 ```bash
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload
 ```
 
 ## Test
@@ -22,18 +22,10 @@ uvicorn app.main:app --reload --port 8000
 pytest
 ```
 
-## Data Sources
-- Open-Meteo hourly forecast API (no API key).
-- Aspen Snowmass raw station feed: `https://weather.aspensnowmass.com/SNOWMASS-SUMMARY.HTM`
-- Human-facing snow/grooming page (documentation only): `https://www.aspensnowmass.com/four-mountains/snowmass/snow-and-grooming-report`
-
-## Env Flags
-- `ASPEN_RAW_ENABLED=0` disables Aspen raw data fetching.
-
-## Safety / Reliability
-- Aspen raw client uses in-memory caching (5 min TTL).
-- Aspen raw client includes a basic rate-limit guard (10s minimum between outbound requests).
-- If Aspen feed fails, recommendation flow falls back to Open-Meteo-only scoring and lowers confidence.
+## Notes
+- Forecast source: Open-Meteo hourly endpoint.
+- Snowmass location constants: `lat=39.2094`, `lon=-106.9495`.
+- On weather failures, the API uses neutral assumptions and lowers confidence.
 
 ## Future Work
 - Integrate resort ops/lift status feeds.

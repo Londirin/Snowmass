@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from .aspen_raw import AspenRawSnapshot
 from .models import ExcludedItem, RecommendationItem, RecommendationRequest
 from .pods import Pod
 from .utils import DIFFICULTY_ORDER, clamp
@@ -65,12 +64,7 @@ def _aspect_slush_penalty(pod: Pod, temperature: float) -> float:
     return 1.5 * matches * min(temperature / 4.0, 2.0)
 
 
-def _hour_score(
-    pod: Pod,
-    weather: HourlyWeather,
-    request: RecommendationRequest,
-    aspen_raw: AspenRawSnapshot | None,
-) -> tuple[float, dict[str, float]]:
+def _hour_score(pod: Pod, weather: HourlyWeather, request: RecommendationRequest) -> tuple[float, dict[str, float]]:
     score = 50.0
     terms: dict[str, float] = {}
 
@@ -104,30 +98,10 @@ def _hour_score(
     terms["trees"] = tree_bonus
     terms["crowds"] = crowd_stub
 
-    if aspen_raw:
-        alpine_wind = aspen_raw.wind_speed_alpine_mph or 0.0
-        alpine_gust = aspen_raw.max_gust_alpine_mph or 0.0
-        aspen_wind_penalty = max(0.0, alpine_wind - 20.0) * 0.3 * exposure_mult
-        aspen_wind_penalty += max(0.0, alpine_gust - 30.0) * 0.15 * exposure_mult
-        score -= aspen_wind_penalty
-        terms["aspen_wind"] = -aspen_wind_penalty
-
-        fresh_inches = aspen_raw.new_snow_inches or aspen_raw.snowfall_24hr_inches or 0.0
-        aspen_fresh_bonus = 0.0
-        if fresh_inches > 0 and (aspen_raw.temp_mid_alt_f is None or aspen_raw.temp_mid_alt_f <= 32):
-            aspen_fresh_bonus = min(fresh_inches, 6.0) * 0.8 * pod.tree_cover
-            score += aspen_fresh_bonus
-        terms["aspen_fresh"] = aspen_fresh_bonus
-
     return clamp(score, 0.0, 100.0), terms
 
 
-def _build_explanations(
-    pod: Pod,
-    avg_terms: dict[str, float],
-    weather_available: bool,
-    aspen_raw_used: bool,
-) -> list[str]:
+def _build_explanations(pod: Pod, avg_terms: dict[str, float], weather_available: bool) -> list[str]:
     reasons: list[str] = []
 
     if not weather_available:
@@ -144,21 +118,13 @@ def _build_explanations(
     if avg_terms.get("warm_aspect", 0.0) > -2:
         reasons.append("Aspect mix limits warm-snow degradation risk.")
 
-    if aspen_raw_used and avg_terms.get("aspen_wind", 0.0) <= -3:
-        reasons.append("Resort stations show elevated alpine wind; sheltered pods preferred.")
-    if aspen_raw_used and avg_terms.get("aspen_fresh", 0.0) >= 1:
-        reasons.append("Resort stations indicate recent snowfall; tree cover should ski better.")
-
     if len(reasons) < 2:
         reasons.append("Balanced terrain characteristics for current conditions.")
     return reasons[:5]
 
 
 def score_pods(
-    pods: list[Pod],
-    request: RecommendationRequest,
-    weather: WeatherResult,
-    aspen_raw: AspenRawSnapshot | None = None,
+    pods: list[Pod], request: RecommendationRequest, weather: WeatherResult
 ) -> list[ScoredPod]:
     """Score pods and choose best contiguous 2-hour window."""
     scored: list[ScoredPod] = []
@@ -175,17 +141,17 @@ def score_pods(
         for idx in range(len(weather.hours) - 1):
             h1 = weather.hours[idx]
             h2 = weather.hours[idx + 1]
-            score1, terms1 = _hour_score(pod, h1, request, aspen_raw)
-            score2, terms2 = _hour_score(pod, h2, request, aspen_raw)
+            score1, terms1 = _hour_score(pod, h1, request)
+            score2, terms2 = _hour_score(pod, h2, request)
             window_score = (score1 + score2) / 2
 
             if window_score > best_score:
                 best_score = window_score
                 best_start = h1.time
                 best_end = h2.time
-                best_terms = {k: (terms1.get(k, 0.0) + terms2.get(k, 0.0)) / 2 for k in set(terms1) | set(terms2)}
+                best_terms = {k: (terms1[k] + terms2[k]) / 2 for k in terms1}
 
-        explanations = _build_explanations(pod, best_terms, weather.available, aspen_raw is not None)
+        explanations = _build_explanations(pod, best_terms, weather.available)
         scored.append(
             ScoredPod(
                 pod=pod,

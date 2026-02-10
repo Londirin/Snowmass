@@ -4,11 +4,6 @@ const brief = document.getElementById('brief');
 const recommendationsEl = document.getElementById('recommendations');
 const excludedEl = document.getElementById('excluded');
 
-const openMeteoStatusEl = document.getElementById('open-meteo-status');
-const aspenRawStatusEl = document.getElementById('aspen-raw-status');
-const stationTimestampEl = document.getElementById('station-timestamp');
-const refreshSourcesButton = document.getElementById('refresh-sources');
-
 ['prefer_trees', 'prefer_groomers', 'avoid_crowds'].forEach((id) => {
   const slider = document.getElementById(id);
   const label = document.getElementById(`${id}_value`);
@@ -16,8 +11,6 @@ const refreshSourcesButton = document.getElementById('refresh-sources');
     label.textContent = Number(slider.value).toFixed(1);
   });
 });
-
-refreshSourcesButton.addEventListener('click', refreshSources);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -34,7 +27,7 @@ form.addEventListener('submit', async (event) => {
   };
 
   try {
-    const response = await fetch('/recommend', {
+    const response = await fetch('http://127.0.0.1:8000/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -53,26 +46,6 @@ form.addEventListener('submit', async (event) => {
     excludedEl.innerHTML = '';
   }
 });
-
-async function refreshSources() {
-  try {
-    const response = await fetch('/sources/status');
-    if (!response.ok) {
-      throw new Error(`Status failed (${response.status})`);
-    }
-
-    const data = await response.json();
-    openMeteoStatusEl.textContent = data.open_meteo.ok ? 'OK' : 'Fail';
-    aspenRawStatusEl.textContent = data.aspen_raw.ok ? 'OK' : 'Fail';
-    stationTimestampEl.textContent = data.aspen_raw.latest_station_timestamp
-      ? new Date(data.aspen_raw.latest_station_timestamp).toLocaleString()
-      : '-';
-  } catch (error) {
-    openMeteoStatusEl.textContent = 'Fail';
-    aspenRawStatusEl.textContent = 'Fail';
-    stationTimestampEl.textContent = '-';
-  }
-}
 
 function renderResults(data) {
   resultsSection.classList.remove('hidden');
@@ -114,5 +87,3 @@ function formatWindow(startIso, endIso) {
   const options = { hour: 'numeric', minute: '2-digit' };
   return `${start.toLocaleTimeString([], options)}–${end.toLocaleTimeString([], options)}`;
 }
-
-refreshSources();

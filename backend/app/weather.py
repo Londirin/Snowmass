@@ -33,9 +33,6 @@ class WeatherClient:
 
     def __init__(self) -> None:
         self._cache: dict[str, WeatherResult] = {}
-        self.last_ok: bool | None = None
-        self.last_fetch_at: datetime | None = None
-        self.last_error: str | None = None
 
     def get_forecast(self, target: datetime, horizon_hours: int) -> WeatherResult:
         cache_key = f"{iso_hour_key(target)}:{horizon_hours}"
@@ -55,23 +52,17 @@ class WeatherClient:
                 response = client.get(OPEN_METEO_URL, params=params)
                 response.raise_for_status()
                 payload = response.json()
-        except Exception as exc:
+        except Exception:
             result = WeatherResult(
                 hours=self._neutral_hours(target, horizon_hours),
                 source="open-meteo-unavailable",
                 available=False,
             )
             self._cache[cache_key] = result
-            self.last_ok = False
-            self.last_fetch_at = datetime.now(UTC)
-            self.last_error = str(exc)
             return result
 
         result = self._extract_hours(payload, target, horizon_hours)
         self._cache[cache_key] = result
-        self.last_ok = result.available
-        self.last_fetch_at = datetime.now(UTC)
-        self.last_error = None if result.available else "No weather rows matched requested horizon"
         return result
 
     def _extract_hours(self, payload: dict, target: datetime, horizon_hours: int) -> WeatherResult:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -53,8 +53,6 @@ class Location(BaseModel):
 class DebugInfo(BaseModel):
     weather_source: str
     weather_hours_used: int
-    aspen_raw_used: bool = False
-    aspen_raw_snapshot: dict[str, Any] | None = None
 
 
 class RecommendationResponse(BaseModel):
