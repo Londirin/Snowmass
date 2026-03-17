@@ -10,6 +10,7 @@ DIFFICULTY_ORDER = {
     "blue": 1,
     "black": 2,
     "double_black": 3,
+    "double_black_extreme": 4,
 }
 
 

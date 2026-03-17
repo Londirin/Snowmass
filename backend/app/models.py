@@ -7,8 +7,11 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-Difficulty = Literal["green", "blue", "black", "double_black"]
+Difficulty = Literal["green", "blue", "black", "double_black", "double_black_extreme"]
 Confidence = Literal["low", "medium", "high"]
+RunCategory = Literal["alpine", "terrain_park", "uphill_route"]
+LiveDifficultyRaw = Literal["beginner", "intermediate", "advanced", "expert", "extreme", "terrain-park"]
+LiftStatus = Literal["open", "closed", "on_hold"]
 
 
 class RecommendationRequest(BaseModel):
@@ -69,3 +72,59 @@ class RecommendationResponse(BaseModel):
         if len(value) > 3:
             raise ValueError("recommendations can include at most 3 pods")
         return value
+
+
+class LiveRun(BaseModel):
+    name: str
+    area: str
+    status_open: bool
+    status_day_open: bool
+    groomed: bool
+    difficulty_raw: str
+    difficulty_normalized: Difficulty | None = None
+    category: RunCategory
+    source: str
+
+
+class LiveLift(BaseModel):
+    name: str
+    status_raw: str
+    status_normalized: LiftStatus
+    type: str
+    area: str
+    hours_of_operation: str
+    elevation_gain_feet: int
+    elevation_gain_meters: int
+    ride_time_minutes: int
+    source: str
+
+
+class LiveSourceUrls(BaseModel):
+    grooming: str
+    lifts: str
+
+
+class LiveSourceDebug(BaseModel):
+    ok: bool
+    fetched_at: datetime
+    cache_used: bool
+    stale: bool
+    error: str | None = None
+    url: str
+    warnings: list[str] = Field(default_factory=list)
+    item_count: int = 0
+
+
+class LiveStatusSourceDebug(BaseModel):
+    grooming: LiveSourceDebug
+    lifts: LiveSourceDebug
+
+
+class SnowmassLiveStatusResponse(BaseModel):
+    mountain: str
+    fetched_at: datetime
+    stale: bool
+    runs: list[LiveRun]
+    lifts: list[LiveLift]
+    source_urls: LiveSourceUrls
+    source_debug: LiveStatusSourceDebug

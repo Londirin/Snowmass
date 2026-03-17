@@ -1,0 +1,74 @@
+{
+  "noonGroom": "",
+  "areas": [
+    {
+      "name": "Elk Camp",
+      "trails": [
+        {
+          "name": "Assay Hill",
+          "isOpen": true,
+          "isDayOpen": true,
+          "isGroomed": true,
+          "difficulty": "beginner"
+        },
+        {
+          "name": "Adam's Avenue",
+          "isOpen": true,
+          "isDayOpen": true,
+          "isGroomed": false,
+          "difficulty": "intermediate"
+        },
+        {
+          "name": "Burnt Mountain Glades",
+          "isOpen": false,
+          "isDayOpen": false,
+          "isGroomed": false,
+          "difficulty": "advanced"
+        }
+      ]
+    },
+    {
+      "name": "Cirque",
+      "trails": [
+        {
+          "name": "A.M.F.",
+          "isOpen": false,
+          "isDayOpen": false,
+          "isGroomed": false,
+          "difficulty": "expert"
+        },
+        {
+          "name": "Buckskin Cliffs",
+          "isOpen": true,
+          "isDayOpen": true,
+          "isGroomed": false,
+          "difficulty": "extreme"
+        }
+      ]
+    },
+    {
+      "name": "Pipes/Parks",
+      "trails": [
+        {
+          "name": "Snowmass Park",
+          "isOpen": false,
+          "isDayOpen": false,
+          "isGroomed": false,
+          "difficulty": "terrain-park"
+        }
+      ]
+    },
+    {
+      "name": "Uphill Routes",
+      "trails": [
+        {
+          "name": "Elk Camp Uphill Route",
+          "isOpen": true,
+          "isDayOpen": true,
+          "isGroomed": false,
+          "difficulty": "intermediate"
+        }
+      ]
+    }
+  ]
+}

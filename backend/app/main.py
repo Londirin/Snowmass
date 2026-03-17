@@ -5,19 +5,39 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
+from .aspen_live import AspenSnowmassLiveClient
 from .models import RecommendationRequest, RecommendationResponse
 from .pods import load_pods
 from .scoring import apply_hard_constraints, build_recommendations, score_pods
 from .weather import SNOWMASS_LOCATION, WeatherClient
 
 app = FastAPI(title="Snowmass Pod Recommender", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["null"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+live_client = AspenSnowmassLiveClient()
 weather_client = WeatherClient()
 
 
 @app.get("/health")
 def health() -> dict[str, bool]:
     return {"ok": True}
+
+
+@app.get("/live/snowmass", response_model=None)
+def live_snowmass():
+    response = live_client.get_live_status()
+    has_source_error = not response.source_debug.grooming.ok or not response.source_debug.lifts.ok
+    if has_source_error:
+        return JSONResponse(status_code=503, content=response.model_dump(mode="json"))
+    return response
 
 
 @app.post("/recommend", response_model=RecommendationResponse)

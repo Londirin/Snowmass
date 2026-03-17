@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 ElevationBand = Literal["base", "mid", "upper"]
 Aspect = Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 Exposure = Literal["low", "medium", "high"]
-Difficulty = Literal["green", "blue", "black", "double_black"]
+Difficulty = Literal["green", "blue", "black", "double_black", "double_black_extreme"]
 
 
 class Pod(BaseModel):

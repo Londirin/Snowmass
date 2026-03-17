@@ -1,3 +1,5 @@
+const API_BASE = window.SNOWMASS_API_BASE || 'http://127.0.0.1:8000';
+
 const form = document.getElementById('recommend-form');
 const resultsSection = document.getElementById('results');
 const brief = document.getElementById('brief');
@@ -27,7 +29,7 @@ form.addEventListener('submit', async (event) => {
   };
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/recommend', {
+    const response = await fetch(`${API_BASE}/recommend`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -85,5 +87,5 @@ function formatWindow(startIso, endIso) {
   const start = new Date(startIso);
   const end = new Date(endIso);
   const options = { hour: 'numeric', minute: '2-digit' };
-  return `${start.toLocaleTimeString([], options)}–${end.toLocaleTimeString([], options)}`;
+  return `${start.toLocaleTimeString([], options)}-${end.toLocaleTimeString([], options)}`;
 }
