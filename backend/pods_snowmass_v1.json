@@ -1,7 +1,7 @@
 [
   {
     "pod_id": "elkrange_beginner",
-    "name": "Assay Hill Beginner Zone",
+    "name": "Elk Camp",
     "elevation_band": "base",
     "aspects": ["N", "NE"],
     "tree_cover": 0.55,
@@ -13,7 +13,7 @@
   },
   {
     "pod_id": "fanny_hill",
-    "name": "Fanny Hill",
+    "name": "Coney Express",
     "elevation_band": "base",
     "aspects": ["E", "SE"],
     "tree_cover": 0.2,
@@ -25,7 +25,7 @@
   },
   {
     "pod_id": "village_express_cruisers",
-    "name": "Village Express Cruisers",
+    "name": "Two Creeks",
     "elevation_band": "mid",
     "aspects": ["N", "NW"],
     "tree_cover": 0.35,
@@ -61,7 +61,7 @@
   },
   {
     "pod_id": "campground_glades",
-    "name": "Campground Glades",
+    "name": "Campground",
     "elevation_band": "mid",
     "aspects": ["NW", "N"],
     "tree_cover": 0.85,
@@ -73,7 +73,7 @@
   },
   {
     "pod_id": "sheer_bliss",
-    "name": "Sheer Bliss",
+    "name": "High Alpine",
     "elevation_band": "upper",
     "aspects": ["W", "SW"],
     "tree_cover": 0.4,
@@ -97,7 +97,7 @@
   },
   {
     "pod_id": "hanging_valley_wall",
-    "name": "Hanging Valley Wall",
+    "name": "Hanging Valley",
     "elevation_band": "upper",
     "aspects": ["N", "NE"],
     "tree_cover": 0.1,
@@ -109,7 +109,7 @@
   },
   {
     "pod_id": "adams_avenue",
-    "name": "Adams Avenue",
+    "name": "Elk Camp",
     "elevation_band": "mid",
     "aspects": ["E", "NE"],
     "tree_cover": 0.65,
@@ -121,7 +121,7 @@
   },
   {
     "pod_id": "sneaky_glades",
-    "name": "Sneaky Glades",
+    "name": "Cirque",
     "elevation_band": "mid",
     "aspects": ["N", "NW"],
     "tree_cover": 0.9,
@@ -133,7 +133,7 @@
   },
   {
     "pod_id": "lower_crosswinds",
-    "name": "Lower Crosswinds",
+    "name": "Coney Express",
     "elevation_band": "base",
     "aspects": ["SW", "W"],
     "tree_cover": 0.45,

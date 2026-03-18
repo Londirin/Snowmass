@@ -82,6 +82,7 @@ class LiveRun(BaseModel):
     groomed: bool
     difficulty_raw: str
     difficulty_normalized: Difficulty | None = None
+    difficulty_label: str | None = None
     category: RunCategory
     pod_id: str | None = None
     pod_name: str | None = None

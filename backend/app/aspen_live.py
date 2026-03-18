@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any, Callable
 
 import httpx
@@ -23,6 +25,7 @@ LIFT_STATUS_PAGE_URL = "https://www.aspensnowmass.com/four-mountains/snowmass/li
 GROOMING_FEED_URL = "https://www.aspensnowmass.com/AspenSnowmass/GroomingReport/Feed"
 LIFT_STATUS_FEED_URL = "https://www.aspensnowmass.com/AspenSnowmass/LiftStatus/Feed"
 SNOWMASS_MOUNTAIN = "Snowmass"
+RUN_CATALOG_FILE = Path(__file__).resolve().parent.parent / "snowmass_run_crosswalk.csv"
 
 KNOWN_DIFFICULTY_LABELS = {
     "beginner",
@@ -49,12 +52,34 @@ LIFT_STATUS_MAP = {
     "on hold": "on_hold",
 }
 
-RUN_TO_POD_MAP: dict[tuple[str, str], tuple[str, str]] = {
-    ("Elk Camp", "Assay Hill"): ("elkrange_beginner", "Assay Hill Beginner Zone"),
-    ("Elk Camp", "Adam's Avenue"): ("adams_avenue", "Adams Avenue"),
-    ("Elk Camp", "Burnt Mountain Glades"): ("big_burn", "Big Burn"),
-    ("Cirque", "A.M.F."): ("hanging_valley_wall", "Hanging Valley Wall"),
-    ("Cirque", "Buckskin Cliffs"): ("hanging_valley_wall", "Hanging Valley Wall"),
+OFFICIAL_POD_TO_ID: dict[str, str] = {
+    "Alpine Springs": "alpine_springs",
+    "Big Burn": "big_burn",
+    "Campground": "campground_glades",
+    "Cirque": "hanging_valley_wall",
+    "Coney Express": "fanny_hill",
+    "Elk Camp": "elkrange_beginner",
+    "Hanging Valley": "hanging_valley_wall",
+    "High Alpine": "sheer_bliss",
+    "Sam's Knob": "sams_knob",
+    "Two Creeks": "village_express_cruisers",
+    "Pipes/Parks": "sneaky_glades",
+}
+
+DIFFICULTY_LABEL_TO_NORMALIZED: dict[str, Difficulty | None] = {
+    "Beginner": "green",
+    "Intermediate": "blue",
+    "Advanced": "black",
+    "Expert": "double_black",
+    "Extreme Terrain": "double_black_extreme",
+    "Terrain Park": None,
+}
+
+RUN_ALIASES: dict[str, str] = {
+    "Adam's Avenue": "Adam's Avenue (Upper)",
+    "Campground": "Campground (Lower)",
+    "Slot": "Slot (Lower)",
+    "Wildcat": "Wildcat (Lower)",
 }
 
 
@@ -200,7 +225,17 @@ def normalize_runs(payload: dict[str, Any], warnings: list[str] | None = None) -
             difficulty_raw = str(trail.get("difficulty", "")).strip()
             difficulty_normalized = DIFFICULTY_MAP.get(difficulty_raw)
             trail_name = str(trail.get("name", "")).strip()
-            pod_id, pod_name = _resolve_run_pod(area_name, trail_name, difficulty_raw, warnings, seen_unmapped_runs)
+            catalog_entry = _lookup_catalog_entry(trail_name)
+            pod_id, pod_name, difficulty_label = _resolve_run_pod(
+                area_name,
+                trail_name,
+                difficulty_raw,
+                catalog_entry,
+                warnings,
+                seen_unmapped_runs,
+            )
+            if catalog_entry:
+                difficulty_normalized = DIFFICULTY_LABEL_TO_NORMALIZED[catalog_entry["difficulty"]]
             if difficulty_raw and difficulty_raw not in KNOWN_DIFFICULTY_LABELS and difficulty_raw not in seen_unknown_difficulties:
                 warnings.append(f"Unknown difficulty label from Aspen feed: {difficulty_raw}")
                 seen_unknown_difficulties.add(difficulty_raw)
@@ -214,6 +249,7 @@ def normalize_runs(payload: dict[str, Any], warnings: list[str] | None = None) -
                     groomed=bool(trail.get("isGroomed", False)),
                     difficulty_raw=difficulty_raw,
                     difficulty_normalized=difficulty_normalized,
+                    difficulty_label=difficulty_label,
                     category=_normalize_run_category(area_name, trail_name, difficulty_raw),
                     pod_id=pod_id,
                     pod_name=pod_name,
@@ -258,23 +294,55 @@ def _resolve_run_pod(
     area: str,
     name: str,
     difficulty_raw: str,
+    catalog_entry: dict[str, str] | None,
     warnings: list[str],
     seen_unmapped_runs: set[tuple[str, str]],
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, str | None, str | None]:
     if difficulty_raw == "terrain-park" or area == "Pipes/Parks":
-        return None, None
+        return None, None, "Terrain Park"
     if area == "Uphill Routes" or "Uphill Route" in name:
-        return None, None
+        return None, None, None
 
-    mapped = RUN_TO_POD_MAP.get((area, name))
-    if mapped:
-        return mapped
+    if catalog_entry:
+        pod_name = catalog_entry["pod"]
+        return _pod_id_for_name(pod_name), pod_name, catalog_entry["difficulty"]
 
     key = (area, name)
     if key not in seen_unmapped_runs:
         warnings.append(f"No pod mapping found for Snowmass trail: {name} ({area})")
         seen_unmapped_runs.add(key)
-    return None, None
+    return None, None, None
+
+
+def _pod_id_for_name(pod_name: str) -> str:
+    return OFFICIAL_POD_TO_ID.get(pod_name, pod_name.lower().replace("'", "").replace("/", "_").replace(" ", "_"))
+
+
+def _load_run_catalog() -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    with RUN_CATALOG_FILE.open(encoding="utf-8", newline="") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            pod = str(row.get("Pod", "")).strip()
+            run = str(row.get("Run", "")).strip()
+            difficulty = str(row.get("Difficulty", "")).strip()
+            if pod and run and difficulty:
+                rows.append({"pod": pod, "run": run, "difficulty": difficulty})
+    return rows
+
+
+def _lookup_catalog_entry(trail_name: str) -> dict[str, str] | None:
+    catalog_entry = RUN_CATALOG_BY_RUN.get(trail_name)
+    if catalog_entry:
+        return catalog_entry
+    alias = RUN_ALIASES.get(trail_name)
+    if alias:
+        return RUN_CATALOG_BY_RUN.get(alias)
+    return None
+
+
+RUN_CATALOG = _load_run_catalog()
+RUN_CATALOG_BY_RUN = {entry["run"]: entry for entry in RUN_CATALOG}
 
 
 def _to_int(value: Any) -> int:
