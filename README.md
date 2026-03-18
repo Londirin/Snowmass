@@ -56,6 +56,7 @@ Open `frontend/index.html` in your browser. The page calls `http://127.0.0.1:800
 ## API
 - `GET /health` -> `{"ok": true}`
 - `POST /recommend` -> top 3 pod recommendations (with best 2-hour window, reasons, and excluded pods)
+- `GET /live/snowmass` -> live runs and lifts, with each mapped run including pod metadata when the trail can be confidently linked
 
 ## Recommendation Design
 1. Apply strict hard constraints first.

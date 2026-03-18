@@ -1,7 +1,7 @@
 [
   {
     "pod_id": "elkrange_beginner",
-    "name": "Elk Range Beginner Zone",
+    "name": "Assay Hill Beginner Zone",
     "elevation_band": "base",
     "aspects": ["N", "NE"],
     "tree_cover": 0.55,
@@ -9,7 +9,7 @@
     "mogul_risk": 0.1,
     "exposure": "low",
     "difficulty_max": "green",
-    "notes": "Learning-friendly pod near base lifts."
+    "notes": "Learning-friendly pod near Assay Hill and Elk Camp base lifts."
   },
   {
     "pod_id": "fanny_hill",

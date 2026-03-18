@@ -74,6 +74,8 @@ def test_live_snowmass_contract(monkeypatch) -> None:
     assert data["stale"] is False
     assert data["runs"]
     assert data["lifts"]
+    assert data["runs"][0]["pod_id"] == "elkrange_beginner"
+    assert data["runs"][0]["pod_name"] == "Assay Hill Beginner Zone"
     assert data["source_urls"]["grooming"].endswith("/snow-and-grooming-report")
     assert data["source_urls"]["lifts"].endswith("/lift-status")
     assert "grooming" in data["source_debug"]

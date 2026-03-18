@@ -23,11 +23,18 @@ def test_normalize_runs_maps_difficulty_and_categories() -> None:
 
     assert runs_by_name["Assay Hill"].difficulty_raw == "beginner"
     assert runs_by_name["Assay Hill"].difficulty_normalized == "green"
+    assert runs_by_name["Assay Hill"].pod_id == "elkrange_beginner"
+    assert runs_by_name["Assay Hill"].pod_name == "Assay Hill Beginner Zone"
     assert runs_by_name["Adam's Avenue"].difficulty_normalized == "blue"
+    assert runs_by_name["Adam's Avenue"].pod_id == "adams_avenue"
     assert runs_by_name["Burnt Mountain Glades"].difficulty_normalized == "black"
+    assert runs_by_name["Burnt Mountain Glades"].pod_id == "big_burn"
     assert runs_by_name["A.M.F."].difficulty_normalized == "double_black"
+    assert runs_by_name["A.M.F."].pod_id == "hanging_valley_wall"
     assert runs_by_name["Buckskin Cliffs"].difficulty_normalized == "double_black_extreme"
+    assert runs_by_name["Buckskin Cliffs"].pod_id == "hanging_valley_wall"
     assert runs_by_name["Snowmass Park"].difficulty_normalized is None
+    assert runs_by_name["Snowmass Park"].pod_id is None
 
     assert runs_by_name["Assay Hill"].category == "alpine"
     assert runs_by_name["Snowmass Park"].category == "terrain_park"
@@ -60,10 +67,10 @@ def test_unknown_difficulty_adds_warning_at_runtime() -> None:
     payload = {
         "areas": [
             {
-                "name": "Test Area",
+                "name": "Elk Camp",
                 "trails": [
                     {
-                        "name": "Mystery Run",
+                        "name": "Assay Hill",
                         "isOpen": True,
                         "isDayOpen": True,
                         "isGroomed": False,
@@ -80,6 +87,32 @@ def test_unknown_difficulty_adds_warning_at_runtime() -> None:
     assert runs[0].difficulty_raw == "mystery"
     assert runs[0].difficulty_normalized is None
     assert warnings == ["Unknown difficulty label from Aspen feed: mystery"]
+
+
+def test_unknown_trail_adds_pod_mapping_warning_at_runtime() -> None:
+    payload = {
+        "areas": [
+            {
+                "name": "Somewhere Else",
+                "trails": [
+                    {
+                        "name": "Mystery Run",
+                        "isOpen": True,
+                        "isDayOpen": True,
+                        "isGroomed": False,
+                        "difficulty": "advanced",
+                    }
+                ],
+            }
+        ]
+    }
+    warnings: list[str] = []
+
+    runs = normalize_runs(payload, warnings)
+
+    assert runs[0].pod_id is None
+    assert runs[0].pod_name is None
+    assert warnings == ["No pod mapping found for Snowmass trail: Mystery Run (Somewhere Else)"]
 
 
 def test_grooming_feed_failure_uses_warm_cache() -> None:

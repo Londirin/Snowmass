@@ -49,6 +49,14 @@ LIFT_STATUS_MAP = {
     "on hold": "on_hold",
 }
 
+RUN_TO_POD_MAP: dict[tuple[str, str], tuple[str, str]] = {
+    ("Elk Camp", "Assay Hill"): ("elkrange_beginner", "Assay Hill Beginner Zone"),
+    ("Elk Camp", "Adam's Avenue"): ("adams_avenue", "Adams Avenue"),
+    ("Elk Camp", "Burnt Mountain Glades"): ("big_burn", "Big Burn"),
+    ("Cirque", "A.M.F."): ("hanging_valley_wall", "Hanging Valley Wall"),
+    ("Cirque", "Buckskin Cliffs"): ("hanging_valley_wall", "Hanging Valley Wall"),
+}
+
 
 @dataclass
 class CachedFeed:
@@ -184,26 +192,31 @@ def normalize_runs(payload: dict[str, Any], warnings: list[str] | None = None) -
     warnings = warnings if warnings is not None else []
     runs: list[LiveRun] = []
     seen_unknown_difficulties: set[str] = set()
+    seen_unmapped_runs: set[tuple[str, str]] = set()
 
     for area in payload.get("areas", []):
         area_name = str(area.get("name", "")).strip()
         for trail in area.get("trails", []):
             difficulty_raw = str(trail.get("difficulty", "")).strip()
             difficulty_normalized = DIFFICULTY_MAP.get(difficulty_raw)
+            trail_name = str(trail.get("name", "")).strip()
+            pod_id, pod_name = _resolve_run_pod(area_name, trail_name, difficulty_raw, warnings, seen_unmapped_runs)
             if difficulty_raw and difficulty_raw not in KNOWN_DIFFICULTY_LABELS and difficulty_raw not in seen_unknown_difficulties:
                 warnings.append(f"Unknown difficulty label from Aspen feed: {difficulty_raw}")
                 seen_unknown_difficulties.add(difficulty_raw)
 
             runs.append(
                 LiveRun(
-                    name=str(trail.get("name", "")).strip(),
+                    name=trail_name,
                     area=area_name,
                     status_open=bool(trail.get("isOpen", False)),
                     status_day_open=bool(trail.get("isDayOpen", False)),
                     groomed=bool(trail.get("isGroomed", False)),
                     difficulty_raw=difficulty_raw,
                     difficulty_normalized=difficulty_normalized,
-                    category=_normalize_run_category(area_name, str(trail.get("name", "")).strip(), difficulty_raw),
+                    category=_normalize_run_category(area_name, trail_name, difficulty_raw),
+                    pod_id=pod_id,
+                    pod_name=pod_name,
                     source=GROOMING_PAGE_URL,
                 )
             )
@@ -239,6 +252,29 @@ def _normalize_run_category(area: str, name: str, difficulty_raw: str) -> str:
     if area == "Uphill Routes" or "Uphill Route" in name:
         return "uphill_route"
     return "alpine"
+
+
+def _resolve_run_pod(
+    area: str,
+    name: str,
+    difficulty_raw: str,
+    warnings: list[str],
+    seen_unmapped_runs: set[tuple[str, str]],
+) -> tuple[str | None, str | None]:
+    if difficulty_raw == "terrain-park" or area == "Pipes/Parks":
+        return None, None
+    if area == "Uphill Routes" or "Uphill Route" in name:
+        return None, None
+
+    mapped = RUN_TO_POD_MAP.get((area, name))
+    if mapped:
+        return mapped
+
+    key = (area, name)
+    if key not in seen_unmapped_runs:
+        warnings.append(f"No pod mapping found for Snowmass trail: {name} ({area})")
+        seen_unmapped_runs.add(key)
+    return None, None
 
 
 def _to_int(value: Any) -> int:

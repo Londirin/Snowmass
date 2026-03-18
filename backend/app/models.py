@@ -83,6 +83,8 @@ class LiveRun(BaseModel):
     difficulty_raw: str
     difficulty_normalized: Difficulty | None = None
     category: RunCategory
+    pod_id: str | None = None
+    pod_name: str | None = None
     source: str
 
 
