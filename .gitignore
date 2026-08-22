@@ -5,3 +5,6 @@ __pycache__/
 
 # Node
 node_modules/
+
+# Derived terrain tile cache (re-fetchable: python3 domain/derive/terrain.py --refresh)
+domain/fixtures/terrain-tiles/

@@ -1,0 +1,317 @@
+{
+  "generated_by": "domain/derive/terrain.py",
+  "sources": {
+    "geometry": {
+      "name": "OpenStreetMap piste:type=downhill",
+      "endpoint": "https://overpass-api.de/api/interpreter",
+      "bbox": {
+        "south": 39.17,
+        "west": -107.0,
+        "north": 39.27,
+        "east": -106.9
+      },
+      "licence": "ODbL 1.0 \u2014 attribution required if shown to users"
+    },
+    "elevation": {
+      "name": "AWS Terrain Tiles (terrarium)",
+      "endpoint": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+      "zoom": 14,
+      "approx_ground_resolution_m": 9.5
+    },
+    "pod_membership": {
+      "name": "Aspen grooming feed, recorded",
+      "fixture": "domain/fixtures/grooming-feed.2026-08-22.json"
+    }
+  },
+  "method": {
+    "aspect": "Bearing from the higher to the lower end of each run segment, weighted by that segment's vertical drop. Segments dropping under 1 m or shorter than 5 m are discarded as carrying no aspect signal.",
+    "elevation": "Min and max sampled elevation over every matched run vertex in the pod."
+  },
+  "unmatched_osm_runs": [
+    "A-Line",
+    "Cassidy's Union",
+    "Frog Pond Glades",
+    "Glade One",
+    "Glade Three",
+    "Glade Two",
+    "Hanging Valley Exit",
+    "Hanging Valley Glades",
+    "Headwall",
+    "Powerline Glades",
+    "Rio",
+    "Shear Bliss",
+    "Split Tree",
+    "Strawberry Patch",
+    "Valley Valley",
+    "Wall 1",
+    "Wall 2",
+    "Waters",
+    "Weird Woods",
+    "West I",
+    "West II",
+    "Willy's"
+  ],
+  "pods": {
+    "Alpine Springs": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NE"
+        ],
+        "share_by_aspect": {
+          "N": 0.5955,
+          "NE": 0.273,
+          "NW": 0.0727,
+          "E": 0.0494,
+          "W": 0.0081,
+          "SE": 0.0014
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8854,
+        "top_ft": 10608
+      },
+      "coverage": {
+        "runs_matched": 10,
+        "segments_used": 220,
+        "vertical_sampled_ft": 9995
+      }
+    },
+    "Big Burn": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NE"
+        ],
+        "share_by_aspect": {
+          "N": 0.6316,
+          "NE": 0.2392,
+          "NW": 0.0959,
+          "E": 0.0258,
+          "S": 0.0046,
+          "SE": 0.0026,
+          "SW": 0.0002
+        }
+      },
+      "elevation": {
+        "bottom_ft": 9672,
+        "top_ft": 12520
+      },
+      "coverage": {
+        "runs_matched": 17,
+        "segments_used": 259,
+        "vertical_sampled_ft": 16654
+      }
+    },
+    "Campground": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NW"
+        ],
+        "share_by_aspect": {
+          "N": 0.4856,
+          "NW": 0.4154,
+          "W": 0.0623,
+          "NE": 0.0367
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8245,
+        "top_ft": 10597
+      },
+      "coverage": {
+        "runs_matched": 2,
+        "segments_used": 61,
+        "vertical_sampled_ft": 4128
+      }
+    },
+    "Cirque": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NE",
+          "E"
+        ],
+        "share_by_aspect": {
+          "N": 0.4844,
+          "NE": 0.2639,
+          "E": 0.179,
+          "NW": 0.0717,
+          "SE": 0.001
+        }
+      },
+      "elevation": {
+        "bottom_ft": 9955,
+        "top_ft": 12444
+      },
+      "coverage": {
+        "runs_matched": 10,
+        "segments_used": 110,
+        "vertical_sampled_ft": 8073
+      }
+    },
+    "Coney Express": {
+      "aspect": {
+        "dominant": "NE",
+        "present": [
+          "NE",
+          "N"
+        ],
+        "share_by_aspect": {
+          "NE": 0.717,
+          "N": 0.1584,
+          "NW": 0.0776,
+          "E": 0.0432,
+          "W": 0.0026,
+          "S": 0.0012
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8467,
+        "top_ft": 10218
+      },
+      "coverage": {
+        "runs_matched": 12,
+        "segments_used": 185,
+        "vertical_sampled_ft": 8350
+      }
+    },
+    "Elk Camp": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NW"
+        ],
+        "share_by_aspect": {
+          "N": 0.6072,
+          "NW": 0.303,
+          "NE": 0.0482,
+          "W": 0.0371,
+          "SE": 0.0023,
+          "E": 0.0022
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8327,
+        "top_ft": 11374
+      },
+      "coverage": {
+        "runs_matched": 12,
+        "segments_used": 332,
+        "vertical_sampled_ft": 13176
+      }
+    },
+    "Hanging Valley": {
+      "aspect": {
+        "dominant": "NE",
+        "present": [
+          "NE",
+          "N",
+          "E"
+        ],
+        "share_by_aspect": {
+          "NE": 0.4579,
+          "N": 0.2783,
+          "E": 0.2237,
+          "NW": 0.0227,
+          "SE": 0.0107,
+          "W": 0.0067
+        }
+      },
+      "elevation": {
+        "bottom_ft": 10284,
+        "top_ft": 12063
+      },
+      "coverage": {
+        "runs_matched": 4,
+        "segments_used": 50,
+        "vertical_sampled_ft": 3691
+      }
+    },
+    "High Alpine": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NE"
+        ],
+        "share_by_aspect": {
+          "N": 0.8019,
+          "NE": 0.1025,
+          "NW": 0.0755,
+          "W": 0.0196,
+          "E": 0.0004
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8886,
+        "top_ft": 11896
+      },
+      "coverage": {
+        "runs_matched": 7,
+        "segments_used": 135,
+        "vertical_sampled_ft": 9574
+      }
+    },
+    "Sam's Knob": {
+      "aspect": {
+        "dominant": "N",
+        "present": [
+          "N",
+          "NE",
+          "NW"
+        ],
+        "share_by_aspect": {
+          "N": 0.5317,
+          "NE": 0.2489,
+          "NW": 0.1435,
+          "E": 0.0453,
+          "SE": 0.0193,
+          "W": 0.01,
+          "SW": 0.0014
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8244,
+        "top_ft": 10616
+      },
+      "coverage": {
+        "runs_matched": 12,
+        "segments_used": 182,
+        "vertical_sampled_ft": 12136
+      }
+    },
+    "Two Creeks": {
+      "aspect": {
+        "dominant": "NE",
+        "present": [
+          "NE",
+          "N"
+        ],
+        "share_by_aspect": {
+          "NE": 0.4183,
+          "N": 0.3626,
+          "NW": 0.0871,
+          "E": 0.077,
+          "W": 0.0324,
+          "SE": 0.0226
+        }
+      },
+      "elevation": {
+        "bottom_ft": 8114,
+        "top_ft": 9754
+      },
+      "coverage": {
+        "runs_matched": 5,
+        "segments_used": 141,
+        "vertical_sampled_ft": 4588
+      }
+    }
+  }
+}
