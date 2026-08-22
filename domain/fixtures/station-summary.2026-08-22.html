@@ -1,0 +1,148 @@
+--- BEGIN UNTRUSTED EXTERNAL CONTENT (source: https://weather.aspensnowmass.com/snowmass-summary.html) ---
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="300">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <title>Snowmass Mountain 24-Hour Wx Summary</title>
+  <style>
+    :root { --line: #e3e5e6; --line2: #bbbdc0; --head: #000000; --head2: #000000;
+            --stripe: #f7f9fb; --muted: #6f7174; --accent: #f0001c; --ink: #111111; }
+    * { box-sizing: border-box; }
+    body { font-family: Tahoma, Verdana, "Segoe UI", system-ui, sans-serif;
+           margin: 0; padding: 1.25rem; color: var(--ink); background: #fff; }
+    h1 { font-size: 1.15rem; margin: 0 0 .15rem; color: var(--head); }
+    .meta { color: var(--muted); font-size: .8rem; margin: 0 0 1rem; }
+    .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    thead th { background: var(--head); color: #fff; font-weight: 600; padding: 6px 10px;
+               text-align: center; white-space: nowrap; position: sticky; top: 0; }
+    thead tr.groups th { background: var(--head2); border-left: 1px solid rgba(255,255,255,.25); }
+    thead tr.cols th { font-weight: 500; }
+    thead .units { display: block; font-weight: 400; opacity: .8; font-size: .72rem; }
+    tbody td { padding: 4px 10px; text-align: center; white-space: nowrap; border-top: 1px solid var(--line); }
+    tbody td:first-child, tbody td.time { color: var(--muted); }
+    tbody tr:nth-child(even) { background: var(--stripe); }
+    tbody tr:last-child { font-weight: 600; }
+    .back { display: inline-flex; align-items: center; gap: .3rem; margin: 0 0 .6rem;
+            font-size: .8rem; text-decoration: none; color: var(--head2);
+            border: 1px solid var(--line); border-radius: 999px; padding: .2rem .7rem; }
+    .back:hover { background: var(--stripe); }
+    .masthead { display: flex; align-items: flex-start; gap: .5rem; margin: 0 0 1rem; }
+    .masthead .logo { height: 45px; width: auto; flex: none; }
+    .masthead h1 { margin: 0; }
+    .masthead .meta { margin: .1rem 0 0; }
+    .charts-wrap { margin: 0 0 1.15rem; }
+    .charts-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 .5rem; }
+    .charts { display: flex; flex-wrap: wrap; gap: .85rem; }
+    .wind-card { flex: 1 1 300px; min-width: 270px; border: 1px solid var(--line); border-radius: 10px;
+                 padding: .65rem .8rem .45rem; background: #fff; box-shadow: 0 1px 2px rgba(20,40,70,.05); }
+    .wc-top { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+    .wc-name { font-weight: 600; color: var(--head); font-size: .9rem; }
+    .wc-dir { display: inline-flex; align-items: center; gap: .25rem; font-size: .76rem; color: var(--muted); white-space: nowrap; }
+    .wc-now { display: flex; align-items: baseline; gap: .3rem; margin: .1rem 0 .15rem; }
+    .wc-spd { font-size: 1.45rem; font-weight: 700; color: var(--head2); line-height: 1; font-variant-numeric: tabular-nums; }
+    .wc-unit { font-size: .7rem; color: var(--muted); }
+    .wc-sub { font-size: .72rem; color: var(--muted); margin-left: auto; }
+    .wind-card svg { display: block; width: 100%; height: auto; margin-top: .15rem; }
+    .wc-empty { color: var(--muted); font-size: .8rem; text-align: center; padding: 1.4rem 0; }
+    .wc-legend { font-size: .72rem; color: var(--muted); margin: .55rem 0 0; display: flex; flex-wrap: wrap; gap: .9rem; align-items: center; }
+    .wc-legend .k { display: inline-flex; align-items: center; gap: .3rem; }
+    .wc-legend .ln { width: 16px; border-top: 2px solid var(--head); }
+    .wc-legend .dt { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    .wc-legend .dt-min { width: 7px; height: 7px; border-radius: 50%; background: #999ba3; }
+    @media (max-width: 540px) {
+      body { padding: .75rem; }
+      .wind-card { flex-basis: 100%; min-width: 0; }
+      h1 { font-size: 1.05rem; }
+      table { font-size: .78rem; }
+      thead th, tbody td { padding: 4px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="index.html">← All reports</a>
+  <header class="masthead">
+    <svg class="logo" role="img" aria-label="Aspen Skiing Company" xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 234 108">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,108)" d="M0 108H234V0H0Z"></path>
+</clipPath>
+</defs>
+<g inkscape:groupmode="layer" inkscape:label="Layer 1">
+<g clip-path="url(#clip_1)">
+<path transform="matrix(1,0,0,-1,29.2634,26.121499)" d="M0 0C-.973-4.82-5.151-9.095-9.093-12.086-15.116-16.657-22.174-21.529-22.168-29.386-22.163-36.046-17.068-41.694-9.61-42.109-4.132-42.414-2.08-43.544-1.572-49.117L-1.332-51.77 1.508-49.675C2.015-44.103 4.132-42.414 9.61-42.109 17.068-41.694 22.162-36.046 22.168-29.386 22.174-21.529 15.116-16.657 9.093-12.086 5.151-9.095 .973-4.82 0 0M0-8.636C2.049-11.309 4.588-13.537 6.815-15.208 7.144-15.455 7.477-15.703 7.811-15.952 13.244-20.005 18.375-23.833 18.371-29.321 18.367-34.174 14.58-37.904 9.365-38.191 6.531-38.347 3.6-38.739 1.37-40.535 .84-40.962 .391-41.434 .01-41.934-.378-41.421-.838-40.939-1.385-40.503-3.602-38.735-6.531-38.347-9.366-38.191-14.58-37.904-18.367-34.174-18.371-29.321-18.375-23.833-13.244-20.005-7.811-15.952-7.477-15.703-7.144-15.455-6.815-15.208-4.588-13.537-2.049-11.309 0-8.636" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,192.4554,29.281899)" d="M0 0V-26.174H2.134L2.163-2.606 21.442-26.202H23.617V3.45H21.403L21.376-16.25 5.403 3.45H-2.297L-2.296 2.813C0 2.813 0 0 0 0" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,139.6553,27.660798)" d="M0 0H1.857C7 0 9.308-3.896 8.78-9.146 8.388-13.035 4.883-15.875 .975-15.875H0ZM-6.347-1.674-6.289-27.798H0V-17.441H3.325C11.402-17.441 15.332-13.491 15.332-7.579 15.332-2.437 11.532 1.806 3.412 1.806H-6.011L-6.012 1.804-8.679 1.807V1.149C-8.679 1.149-6.433 1.305-6.347-1.674" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,181.0213,53.7165)" d="M0 0H-11.578V11.93H-1.992V13.53H-11.578V26.178H1.496L.04 27.854H-18.007L-18.012-1.733H1.496Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,113.6561,37.3929)" d="M0 0C-4.678 1.653-6.34 2.882-6.34 5.849-6.34 8.519-4.415 10.341-1.355 10.341 2.178 10.341 4.503 8.435 5.633 5.103L7.39 9.759C5.249 11.152 2.13 12.037-1.355 12.037-7.476 12.037-11.543 8.435-11.543 3.264-11.543-1.737-8.22-4.026-3.061-5.765 2.187-7.629 4.067-8.942 4.067-12.08 4.067-15.005 1.836-16.868-1.705-16.868-5.292-16.868-7.812-14.687-9.193-11.165L-11.036-16.047C-9.008-17.479-5.607-18.564-1.705-18.564 4.371-18.564 9.4-15.512 9.4-9.579 9.4-4.238 5.859-2.034 0 0" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,74.0954,43.4906)" d="M0 0 4.582 11.681 9.463-.01ZM22.914-11.976 22.913-11.336C21.297-11.336 20.173-9.533 19.741-8.703L8.741 17.648H.578L.579 17.008C2.759 17.008 3.252 14.222 3.252 14.222L-6.708-11.98H-4.465L-.57-1.623H10.148L14.593-11.98Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,66.4717,81.3369)" d="M0 0C-1.565 0-2.964 .376-4.028 .939L-3.736 2.943C-2.755 2.296-1.398 1.712 .042 1.712 1.545 1.712 2.609 2.505 2.609 3.903 2.609 5.219 2.025 5.761-.146 6.742-2.859 7.974-3.882 8.871-3.882 10.938-3.882 13.255-2.108 14.737 .501 14.737 1.9 14.737 2.943 14.403 3.778 13.923L3.465 11.961C2.672 12.566 1.587 13.025 .438 13.025-1.21 13.025-1.941 12.148-1.941 11.084-1.941 9.978-1.398 9.456 .793 8.454 3.591 7.181 4.551 6.221 4.551 4.05 4.551 1.565 2.693 0 0 0" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,81.854,81.3164)" d="M0 0-6.659 7.452V.146H-8.621V14.55H-6.659V8.078L-.689 14.55H1.816L-4.53 7.786 2.171 .46Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,0,108)" d="M85.546 41.233H87.507999V26.830002H85.546Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,0,108)" d="M90.701 41.233H92.662998V26.830002H90.701Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,105.4575,81.1699)" d="M0 0-7.912 11.209V0H-9.728V14.403H-7.974L-.334 3.611V14.403H1.482V0Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,116.3086,81.4414)" d="M0 0C-4.571 0-7.014 3.006-7.014 7.452-7.014 11.919-4.467 14.946-.167 14.946 1.754 14.946 3.09 14.466 4.217 13.715L3.903 11.711C2.839 12.545 1.503 13.15-.187 13.15-3.34 13.15-4.989 10.938-4.989 7.473-4.989 4.008-3.298 1.816 0 1.816 1.252 1.816 2.088 2.066 2.923 2.525V6.346H-.396L-.668 8.141H4.863V1.398C3.632 .605 1.899 0 0 0" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,134.0469,81.4414)" d="M0 0C-4.049 0-6.658 3.006-6.658 7.452-6.658 11.919-4.008 14.946 .042 14.946 1.754 14.946 3.027 14.508 4.133 13.756L3.841 11.752C2.797 12.545 1.565 13.15 .021 13.15-2.901 13.15-4.634 10.938-4.634 7.473-4.634 4.008-2.881 1.816 .021 1.816 1.565 1.816 2.923 2.422 4.07 3.257L4.363 1.398C3.257 .585 1.649 0 0 0" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,146.2354,68.291)" d="M0 0C-2.86 0-4.613-2.212-4.613-5.678-4.613-9.143-2.839-11.355 0-11.355 2.859-11.355 4.613-9.143 4.613-5.678 4.613-2.212 2.839 0 0 0M-.021-13.15C-4.07-13.15-6.638-10.145-6.638-5.698-6.638-1.231-4.028 1.796 .021 1.796 4.091 1.796 6.638-1.21 6.638-5.656 6.638-10.103 4.05-13.15-.021-13.15" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,169.0469,81.1699)" d="M0 0-.897 11.627-5.406-.062H-6.972L-11.48 11.627-12.357 0H-14.194L-13.046 14.403H-10.625L-6.137 2.588-1.648 14.403H.752L1.879 0Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,177.2051,68.499)" d="M0 0H-1.754V-5.094H-.125C1.837-5.094 3.006-4.279 3.006-2.484 3.006-.835 1.962 0 0 0M-3.716 1.732H.104C3.152 1.732 4.988 .25 4.988-2.422 4.988-5.365 2.901-6.826-.229-6.826H-1.754V-12.671H-3.716Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,185.9082,75.116199)" d="M0 0H4.571L2.275 6.116ZM5.219-1.732H-.646L-2.254-6.054H-4.3L1.336 8.412H3.298L8.851-5.782 6.909-6.2Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,206.2988,81.1699)" d="M0 0-7.911 11.209V0H-9.728V14.403H-7.974L-.334 3.611V14.403H1.482V0Z" fill="#231f20"></path>
+<path transform="matrix(1,0,0,-1,216.5654,75.450199)" d="M0 0V-5.72H-1.962V0L-7.056 8.412-5.052 8.829-.96 1.837 3.006 8.684H5.239Z" fill="#231f20"></path>
+</g>
+</g>
+</svg>
+    <div>
+      <h1>Snowmass Mountain 24-Hour Wx Summary</h1>
+      <p class="meta">Generated 2026-08-22 16:05 · most recent data at bottom · auto-refreshes every 5&nbsp;min</p>
+    </div>
+  </header>
+  
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr class="groups">
+          <th colspan="2"></th><th colspan="9">Timbline</th><th colspan="4">Mid Alt</th><th colspan="6">Burn</th><th colspan="5">Alpine</th><th colspan="5">ElkCamp</th><th colspan="6">Baldy</th><th colspan="9">Timbline Snow</th><th colspan="9">Mid Alt Snow</th>
+        </tr>
+        <tr class="cols">
+          <th>Date</th><th>Time</th><th>Tot Snow<span class="units">in</span></th><th>New Snow<span class="units">in</span></th><th>Temp<span class="units">°F</span></th><th>Rel Hum<span class="units">%</span></th><th>Baro<span class="units">inHg</span></th><th>T20<span class="units">°C</span></th><th>T Surface<span class="units">°C</span></th><th>Net Total<span class="units">W/m²</span></th><th>Albedo</th><th>Tot Snow<span class="units">in</span></th><th>New Snow<span class="units">in</span></th><th>Temp<span class="units">°F</span></th><th>Rel Hum<span class="units">%</span></th><th>Temp<span class="units">°F</span></th><th>Rel Hum<span class="units">%</span></th><th>Baro<span class="units">inHg</span></th><th>Wind<span class="units">mph</span></th><th>Wind Dir<span class="units">deg</span></th><th>Max Gust<span class="units">mph</span></th><th>Temp<span class="units">°F</span></th><th>Rel Hum<span class="units">%</span></th><th>Wind<span class="units">mph</span></th><th>Wind Dir<span class="units">deg</span></th><th>Max Gust<span class="units">mph</span></th><th>Temp<span class="units">°F</span></th><th>Rel Hum<span class="units">%</span></th><th>Wind<span class="units">mph</span></th><th>Wind Dir<span class="units">deg</span></th><th>Max Gust<span class="units">mph</span></th><th>Temp<span class="units">°F</span></th><th>Wind<span class="units">mph</span></th><th>Max Gust<span class="units">mph</span></th><th>Wind Dir<span class="units">deg</span></th><th>Baro<span class="units">inHg</span></th><th>Rel Hum<span class="units">%</span></th><th>HN 1hr<span class="units">in</span></th><th>SWE 1hr<span class="units">in</span></th><th>Dens 1hr<span class="units">%</span></th><th>HN 12hr<span class="units">in</span></th><th>SWE 12hr<span class="units">in</span></th><th>Dens 12hr<span class="units">%</span></th><th>HN 24hr<span class="units">in</span></th><th>SWE 24hr<span class="units">in</span></th><th>Dens 24hr<span class="units">%</span></th><th>HN 1hr<span class="units">in</span></th><th>SWE 1hr<span class="units">in</span></th><th>Dens 1hr<span class="units">%</span></th><th>HN 12hr<span class="units">in</span></th><th>SWE 12hr<span class="units">in</span></th><th>Dens 12hr<span class="units">%</span></th><th>HN 24hr<span class="units">in</span></th><th>SWE 24hr<span class="units">in</span></th><th>Dens 24hr<span class="units">%</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>08/21</td><td class="time">16:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">17:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">18:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">19:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">20:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">21:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">22:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/21</td><td class="time">23:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">00:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">01:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">02:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">03:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">04:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">05:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">06:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">07:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">08:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">09:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">10:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">11:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">12:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">13:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">14:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">15:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>08/22</td><td class="time">16:00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+</body></html>
+--- END UNTRUSTED EXTERNAL CONTENT ---

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx verify/reconcile.ts"
+    "verify": "tsx verify/reconcile.ts",
+    "test": "tsx --test \"src/**/*.test.ts\""
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
