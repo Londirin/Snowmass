@@ -5,3 +5,4 @@ export * from './access.js';
 export * from './conditions.js';
 export * from './assessment.js';
 export * from './catalog.js';
+export * from './station-summary.js';

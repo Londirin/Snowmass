@@ -8,3 +8,6 @@ node_modules/
 
 # Derived terrain tile cache (re-fetchable: python3 domain/derive/terrain.py --refresh)
 domain/fixtures/terrain-tiles/
+
+# Parity vectors: regenerate with domain/fixtures/parity/generate.py; the gzipped copy is committed
+domain/fixtures/parity/vectors.json
