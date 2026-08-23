@@ -41,12 +41,15 @@ REPO = Path(__file__).resolve().parent.parent.parent
 FIXTURES = REPO / "domain" / "fixtures"
 TILE_CACHE = FIXTURES / "terrain-tiles"
 OSM_FIXTURE = FIXTURES / "osm-pistes.json"
+FOREST_FIXTURE = FIXTURES / "osm-forest.json"
 GROOMING_FIXTURE = FIXTURES / "grooming-feed.2026-08-22.json"
 OUT = FIXTURES / "terrain-derived.json"
 
 # Snowmass ski area, generous enough to catch every piste including Burnt Mountain.
 BBOX = (39.17, -107.00, 39.27, -106.90)  # south, west, north, east
 ZOOM = 14  # ~9.5 m/px at this latitude — finer than the pod-level question needs
+FLANK_M = 40.0  # how far off the centreline to look for trees
+TPI_RADIUS_M = 300.0  # ridge-vs-gully scale: wide enough to see the landform, not the pitch
 FEET_PER_METRE = 3.280839895
 
 NON_SKI_GROUPS = {"Uphill Routes", "Hike/XC Bike Trails", "Lost Forest"}
@@ -73,6 +76,83 @@ out tags geom;"""
     payload = json.loads(urllib.request.urlopen(req, timeout=120).read())
     OSM_FIXTURE.write_text(json.dumps(payload, indent=1, sort_keys=True))
     return payload
+
+
+def fetch_forest(refresh: bool) -> dict:
+    if FOREST_FIXTURE.exists() and not refresh:
+        return json.loads(FOREST_FIXTURE.read_text())
+    south, west, north, east = BBOX
+    query = f"""[out:json][timeout:120];
+(
+  way["natural"="wood"]({south},{west},{north},{east});
+  way["landuse"="forest"]({south},{west},{north},{east});
+);
+out tags geom;"""
+    req = urllib.request.Request(OVERPASS, data=query.encode(), method="POST")
+    payload = json.loads(urllib.request.urlopen(req, timeout=180).read())
+    FOREST_FIXTURE.write_text(json.dumps(payload, indent=1, sort_keys=True))
+    return payload
+
+
+class Forest:
+    """Point-in-forest tests against OSM wood/forest polygons, bounding-box indexed.
+
+    Ski runs are cut through the trees, so a point ON a run is usually outside every polygon
+    even on a thickly wooded pod. What decides whether a pod skis well in flat light is whether
+    there are trees BESIDE you, so the useful question is asked a short way off the centreline.
+    """
+
+    def __init__(self, payload: dict) -> None:
+        self.polys: list[tuple[float, float, float, float, list[tuple[float, float]]]] = []
+        for el in payload.get("elements", []):
+            geom = el.get("geometry") or []
+            if len(geom) < 4:
+                continue
+            pts = [(p["lat"], p["lon"]) for p in geom]
+            lats = [p[0] for p in pts]
+            lons = [p[1] for p in pts]
+            self.polys.append((min(lats), min(lons), max(lats), max(lons), pts))
+
+    def contains(self, lat: float, lon: float) -> bool:
+        for s_lat, s_lon, n_lat, n_lon, pts in self.polys:
+            if not (s_lat <= lat <= n_lat and s_lon <= lon <= n_lon):
+                continue
+            inside = False
+            j = len(pts) - 1
+            for i in range(len(pts)):
+                yi, xi = pts[i]
+                yj, xj = pts[j]
+                if (yi > lat) != (yj > lat):
+                    if lon < (xj - xi) * (lat - yi) / (yj - yi + 1e-15) + xi:
+                        inside = not inside
+                j = i
+            if inside:
+                return True
+        return False
+
+
+def tpi(dem: "Elevation", lat: float, lon: float, radius: float = TPI_RADIUS_M) -> float:
+    """Topographic position index, metres: this point's height above its own surroundings.
+
+    Positive means a convex landform — a ridge or shoulder, where wind strips snow away and
+    flat light has nothing to bounce off. Negative means concave — a gully or bowl that collects
+    wind-drifted snow and shelters you. This is the physical thing the retired catalog was
+    reaching for when it hand-labelled pods `low`, `medium`, `high` exposure.
+    """
+    here = dem.metres(lat, lon)
+    ring = []
+    for b in range(0, 360, 45):
+        r_lat, r_lon = offset(lat, lon, float(b), radius)
+        ring.append(dem.metres(r_lat, r_lon))
+    return here - (sum(ring) / len(ring))
+
+
+def offset(lat: float, lon: float, bearing_deg: float, metres: float) -> tuple[float, float]:
+    r = 6371000.0
+    b = math.radians(bearing_deg)
+    dlat = math.degrees((metres / r) * math.cos(b))
+    dlon = math.degrees((metres / (r * math.cos(math.radians(lat)))) * math.sin(b))
+    return lat + dlat, lon + dlon
 
 
 class Elevation:
@@ -165,11 +245,22 @@ def main() -> int:
 
     osm = fetch_osm(args.refresh)
     dem = Elevation(ZOOM, args.refresh)
+    forest = Forest(fetch_forest(args.refresh))
     run_to_pod = aspen_run_to_pod()
     lookup = {normalise(k): (k, v) for k, v in run_to_pod.items()}
 
     pods: dict[str, dict] = defaultdict(
-        lambda: {"aspect_drop_m": defaultdict(float), "elev_m": [], "runs": [], "segments": 0}
+        lambda: {
+            "aspect_drop_m": defaultdict(float),
+            "elev_m": [],
+            "runs": [],
+            "segments": 0,
+            "flank_treed": 0,
+            "flank_tests": 0,
+            "on_run_treed": 0,
+            "on_run_tests": 0,
+            "tpi": [],
+        }
     )
     unmatched: list[str] = []
 
@@ -207,6 +298,20 @@ def main() -> int:
             pod_rec["aspect_drop_m"][compass_of(deg)] += drop
             pod_rec["segments"] += 1
 
+            # Trees: ask beside the run, not on it. A cut run sits outside every forest
+            # polygon whether or not it is bordered by timber.
+            mid_lat = (a["lat"] + b["lat"]) / 2
+            mid_lon = (a["lon"] + b["lon"]) / 2
+            pod_rec["tpi"].append(tpi(dem, mid_lat, mid_lon))
+            pod_rec["on_run_tests"] += 1
+            if forest.contains(mid_lat, mid_lon):
+                pod_rec["on_run_treed"] += 1
+            for side in (deg - 90.0, deg + 90.0):
+                f_lat, f_lon = offset(mid_lat, mid_lon, side % 360.0, FLANK_M)
+                pod_rec["flank_tests"] += 1
+                if forest.contains(f_lat, f_lon):
+                    pod_rec["flank_treed"] += 1
+
     result = {}
     for pod, rec in sorted(pods.items()):
         drops = rec["aspect_drop_m"]
@@ -227,6 +332,19 @@ def main() -> int:
             "elevation": {
                 "bottom_ft": round(min(rec["elev_m"]) * FEET_PER_METRE),
                 "top_ft": round(max(rec["elev_m"]) * FEET_PER_METRE),
+            },
+            "tree_cover": {
+                "flanking": round(rec["flank_treed"] / rec["flank_tests"], 3)
+                if rec["flank_tests"]
+                else None,
+                "on_centreline": round(rec["on_run_treed"] / rec["on_run_tests"], 3)
+                if rec["on_run_tests"]
+                else None,
+                "samples": rec["flank_tests"],
+            },
+            "exposure": {
+                "mean_tpi_m": round(sum(rec["tpi"]) / len(rec["tpi"]), 1) if rec["tpi"] else None,
+                "samples": len(rec["tpi"]),
             },
             "coverage": {
                 "runs_matched": len(rec["runs"]),
@@ -250,6 +368,11 @@ def main() -> int:
                 "zoom": ZOOM,
                 "approx_ground_resolution_m": 9.5,
             },
+            "landcover": {
+                "name": "OpenStreetMap natural=wood + landuse=forest",
+                "endpoint": OVERPASS,
+                "flank_distance_m": FLANK_M,
+            },
             "pod_membership": {
                 "name": "Aspen grooming feed, recorded",
                 "fixture": str(GROOMING_FIXTURE.relative_to(REPO)),
@@ -258,6 +381,8 @@ def main() -> int:
         "method": {
             "aspect": "Bearing from the higher to the lower end of each run segment, weighted by that segment's vertical drop. Segments dropping under 1 m or shorter than 5 m are discarded as carrying no aspect signal.",
             "elevation": "Min and max sampled elevation over every matched run vertex in the pod.",
+            "exposure": f"Mean topographic position index over each run segment's midpoint: the point's elevation minus the mean elevation of eight points {TPI_RADIUS_M:.0f} m around it. Positive is convex terrain that sheds snow to wind; negative is concave terrain that collects it.",
+            "tree_cover": f"Share of points {FLANK_M:.0f} m to either side of each run segment's midpoint that fall inside an OpenStreetMap wood or forest polygon. Measured beside the run rather than on it, because a cut run sits outside every polygon regardless of the timber around it. `on_centreline` is reported alongside as the control.",
         },
         "unmatched_osm_runs": sorted(set(unmatched)),
         "pods": result,
@@ -265,12 +390,13 @@ def main() -> int:
     OUT.write_text(json.dumps(payload, indent=2) + "\n")
 
     print(f"{len(result)} pods derived -> {OUT.relative_to(REPO)}")
-    print(f"{'POD':<16}{'elev ft':>16}  {'dominant':<9}{'present':<22}runs  vert sampled")
+    print(f"{'POD':<16}{'elev ft':>16}  {'dom':<4}{'present':<16}{'trees':>7}{'TPI m':>8}  runs")
     for pod, r in result.items():
-        e, a, c = r["elevation"], r["aspect"], r["coverage"]
+        e, a, c, t = r["elevation"], r["aspect"], r["coverage"], r["tree_cover"]
         print(
-            f"{pod:<16}{e['bottom_ft']:>7,}-{e['top_ft']:<8,}  {a['dominant']:<9}"
-            f"{','.join(a['present']):<22}{c['runs_matched']:>4}  {c['vertical_sampled_ft']:>7,} ft"
+            f"{pod:<16}{e['bottom_ft']:>7,}-{e['top_ft']:<8,}  {a['dominant']:<4}"
+            f"{','.join(a['present']):<16}{t['flanking']:>7.2f}{r['exposure']['mean_tpi_m']:>8.1f}"
+            f"  {c['runs_matched']:>3}"
         )
     if unmatched:
         print(f"\n{len(set(unmatched))} OSM runs unmatched: {', '.join(sorted(set(unmatched))[:12])}")
