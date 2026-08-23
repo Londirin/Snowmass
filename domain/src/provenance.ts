@@ -23,6 +23,21 @@ export type Provenance =
       readonly surveyedOn: IsoDate;
       readonly note?: string | undefined;
     }
+  /**
+   * Computed from named sources by a reproducible method.
+   *
+   * Distinct from `estimated`: nobody exercised judgment, a script did arithmetic on measurements,
+   * and re-running it returns the same number. Distinct from `fetched`: no single URL and field
+   * holds this value — it is the output of combining several that do.
+   */
+  | {
+      readonly kind: 'derived';
+      /** The sources it rests on, named well enough to go and check. */
+      readonly inputs: readonly string[];
+      /** The script that produces it, repo-relative. */
+      readonly method: string;
+      readonly computedOn: IsoDate;
+    }
   /** Derived from a documented model term. Legitimate, but must say what it rests on. */
   | {
       readonly kind: 'estimated';
@@ -77,6 +92,13 @@ export const estimated = <T>(value: T, basis: string): Sourced<T> => ({
   value,
   source: { kind: 'estimated', basis },
 });
+
+export const derived = <T>(
+  value: T,
+  inputs: readonly string[],
+  method: string,
+  computedOn: IsoDate,
+): Sourced<T> => ({ value, source: { kind: 'derived', inputs, method, computedOn } });
 
 export const unsourced = (intendedSource: string): Unsourced => ({
   value: null,

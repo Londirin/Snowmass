@@ -38,8 +38,19 @@ export interface ElevationRange {
   readonly topFt: number;
 }
 
-/** How much of the pod is open to wind and flat light. */
-export type Exposure = 'sheltered' | 'mixed' | 'exposed';
+/**
+ * Topographic position index, in metres: the pod's mean height above its own surroundings.
+ *
+ * Positive is convex — a ridge or shoulder, where wind strips snow off and flat light has nothing
+ * to bounce from. Negative is concave — a bowl or gully that collects wind-drifted snow and gives
+ * some shelter. A continuous measurement replaces the `low`/`medium`/`high` label the retired
+ * catalog carried, because the label was a lossy encoding of exactly this quantity, hand-guessed.
+ */
+export type ExposureTpiMetres = number;
+
+/** Bands for display only. Never score off these — score off the metres. */
+export const exposureBand = (tpi: number): 'sheltered' | 'neutral' | 'exposed' =>
+  tpi <= -3 ? 'sheltered' : tpi >= 3 ? 'exposed' : 'neutral';
 
 /**
  * Per-season terrain description. Every field is a `Field<T>`, so an unpopulated one is a state
@@ -51,7 +62,7 @@ export interface TerrainProfile {
   readonly elevation: Field<ElevationRange>;
   /** 0–1. The share of the pod's terrain with skiable trees, which is what saves a flat-light day. */
   readonly treeCover: Field<number>;
-  readonly exposure: Field<Exposure>;
+  readonly exposure: Field<ExposureTpiMetres>;
   /** Free text for the things the numbers do not carry. Shown to nobody; read by whoever edits this. */
   readonly notes?: string | undefined;
 }

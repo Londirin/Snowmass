@@ -10,9 +10,11 @@
 import type { AccessEdge } from './access.js';
 import { liftId } from './access.js';
 import type { PodId } from './pod.js';
-import { OFFICIAL_POD_NAME } from './pod.js';
-import type { Pod } from './terrain.js';
-import { estimated, fetched, timestamp, unsourced } from './provenance.js';
+import { OFFICIAL_POD_NAME, POD_IDS } from './pod.js';
+
+import { derived, estimated, fetched, isoDate, timestamp, unsourced } from './provenance.js';
+import type { AspectProfile, ElevationRange, Pod, TerrainProfile } from './terrain.js';
+import terrainDerived from '../fixtures/terrain-derived.json' with { type: 'json' };
 
 const GROOMING_FEED_URL =
   'https://www.aspensnowmass.com/AspenSnowmass/GroomingReport/Feed?mountain=Snowmass';
@@ -22,8 +24,88 @@ const LIFT_FEED_URL =
 /** The observation this catalog's fetched fields come from. Fixtures in `domain/fixtures/`. */
 const OBSERVED = timestamp('2026-08-22T23:40:00Z');
 
-const TRAIL_MAP_SURVEY =
-  'Aspen Snowmass winter trail map + a 10m DEM. Not yet done — this is the next data task.';
+/**
+ * Terrain measured rather than guessed.
+ *
+ * `domain/derive/terrain.py` joins OpenStreetMap run geometry to pods by Aspen's own run names,
+ * samples elevation from AWS terrarium tiles, and computes aspect from the fall line, tree cover
+ * from timber flanking each run, and exposure as a topographic position index. Importing its
+ * output rather than transcribing it means the catalog cannot drift from the derivation.
+ *
+ * Pipes/Parks is absent: OpenStreetMap does not carry Aspen's park feature names as pistes, so
+ * nothing matched. It stays unsourced rather than being filled with a neighbour's numbers.
+ */
+const DERIVED_ON = isoDate('2026-08-22');
+const DERIVED_INPUTS = [
+  'OpenStreetMap piste:type=downhill geometry (ODbL)',
+  'OpenStreetMap natural=wood + landuse=forest (ODbL)',
+  'AWS Terrain Tiles, terrarium encoding, zoom 14',
+  'Aspen grooming feed, recorded 2026-08-22, for pod membership',
+];
+const METHOD = 'domain/derive/terrain.py';
+
+const NAME_TO_ID = new Map<string, PodId>(
+  POD_IDS.map((id) => [OFFICIAL_POD_NAME[id], id]),
+);
+
+type DerivedPod = {
+  aspect: { dominant: string; present: string[] };
+  elevation: { bottom_ft: number; top_ft: number };
+  tree_cover: { flanking: number | null };
+  exposure: { mean_tpi_m: number | null };
+  coverage: { runs_matched: number };
+};
+
+const DERIVED = new Map<PodId, DerivedPod>();
+for (const [officialName, rec] of Object.entries(
+  terrainDerived.pods as Record<string, DerivedPod>,
+)) {
+  const id = NAME_TO_ID.get(officialName);
+  if (id) DERIVED.set(id, rec);
+}
+
+const UNMEASURED =
+  'domain/derive/terrain.py found no OpenStreetMap geometry matching this pod\u2019s runs.';
+
+const terrainFor = (podId: PodId, notes?: string): TerrainProfile => {
+  const d = DERIVED.get(podId);
+  if (!d) {
+    return {
+      podId,
+      aspect: unsourced(UNMEASURED),
+      elevation: unsourced(UNMEASURED),
+      treeCover: unsourced(UNMEASURED),
+      exposure: unsourced(UNMEASURED),
+      ...(notes === undefined ? {} : { notes }),
+    };
+  }
+  const aspect: AspectProfile = {
+    dominant: d.aspect.dominant as AspectProfile['dominant'],
+    present: d.aspect.present as unknown as AspectProfile['present'],
+  };
+  const elevation: ElevationRange = {
+    bottomFt: d.elevation.bottom_ft,
+    topFt: d.elevation.top_ft,
+  };
+  return {
+    podId,
+    aspect: derived(aspect, DERIVED_INPUTS, METHOD, DERIVED_ON),
+    elevation: derived(elevation, DERIVED_INPUTS, METHOD, DERIVED_ON),
+    treeCover:
+      d.tree_cover.flanking === null
+        ? unsourced(UNMEASURED)
+        : derived(d.tree_cover.flanking, DERIVED_INPUTS, METHOD, DERIVED_ON),
+    exposure:
+      d.exposure.mean_tpi_m === null
+        ? unsourced(UNMEASURED)
+        : derived(d.exposure.mean_tpi_m, DERIVED_INPUTS, METHOD, DERIVED_ON),
+    ...(notes === undefined ? {} : { notes }),
+  };
+};
+
+/** How many of the pod's runs the derivation actually matched — a confidence input, not a score. */
+export const derivedRunCoverage = (podId: PodId): number =>
+  DERIVED.get(podId)?.coverage.runs_matched ?? 0;
 
 const alpine = (id: PodId): Pod['identity'] => ({
   id,
@@ -31,48 +113,39 @@ const alpine = (id: PodId): Pod['identity'] => ({
   character: 'alpine',
 });
 
-const unsurveyedTerrain = (podId: PodId, notes?: string): Pod['terrain'] => ({
-  podId,
-  aspect: unsourced(TRAIL_MAP_SURVEY),
-  elevation: unsourced(TRAIL_MAP_SURVEY),
-  treeCover: unsourced(TRAIL_MAP_SURVEY),
-  exposure: unsourced(TRAIL_MAP_SURVEY),
-  notes,
-});
-
 export const POD_CATALOG: Record<PodId, Pod> = {
   'alpine-springs': {
     identity: alpine('alpine-springs'),
-    terrain: unsurveyedTerrain('alpine-springs'),
+    terrain: terrainFor('alpine-springs'),
   },
   'big-burn': {
     identity: alpine('big-burn'),
-    terrain: unsurveyedTerrain(
+    terrain: terrainFor(
       'big-burn',
       'Spans roughly 2,000 ft of vertical, so a single elevation band would misdescribe it.',
     ),
   },
-  campground: { identity: alpine('campground'), terrain: unsurveyedTerrain('campground') },
+  campground: { identity: alpine('campground'), terrain: terrainFor('campground') },
   cirque: {
     identity: alpine('cirque'),
-    terrain: unsurveyedTerrain(
+    terrain: terrainFor(
       'cirque',
-      'Above treeline: 15 of 16 runs are expert or extreme per the feed. Any tree-cover estimate should start near zero, not at the 0.9 the retired catalog carried.',
+      'Measured tree cover 0.29 and TPI -12.7 m: an above-treeline bowl, against the 0.9 tree cover the retired catalog carried.',
     ),
   },
   'coney-express': {
     identity: alpine('coney-express'),
-    terrain: unsurveyedTerrain('coney-express'),
+    terrain: terrainFor('coney-express'),
   },
-  'elk-camp': { identity: alpine('elk-camp'), terrain: unsurveyedTerrain('elk-camp') },
+  'elk-camp': { identity: alpine('elk-camp'), terrain: terrainFor('elk-camp') },
   'hanging-valley': {
     identity: alpine('hanging-valley'),
-    terrain: unsurveyedTerrain(
+    terrain: terrainFor(
       'hanging-valley',
       'No lift of its own in the lift feed. Access is a survey question, not a feed question.',
     ),
   },
-  'high-alpine': { identity: alpine('high-alpine'), terrain: unsurveyedTerrain('high-alpine') },
+  'high-alpine': { identity: alpine('high-alpine'), terrain: terrainFor('high-alpine') },
   'pipes-parks': {
     identity: {
       id: 'pipes-parks',
@@ -80,13 +153,13 @@ export const POD_CATALOG: Record<PodId, Pod> = {
       // Fetched: all six runs carry difficulty `terrain-park`, and the group is `isGatedTerrain`.
       character: 'terrain-park',
     },
-    terrain: unsurveyedTerrain(
+    terrain: terrainFor(
       'pipes-parks',
       'Features are rebuilt through the season, so grooming matters here far more than aspect.',
     ),
   },
-  'sams-knob': { identity: alpine('sams-knob'), terrain: unsurveyedTerrain('sams-knob') },
-  'two-creeks': { identity: alpine('two-creeks'), terrain: unsurveyedTerrain('two-creeks') },
+  'sams-knob': { identity: alpine('sams-knob'), terrain: terrainFor('sams-knob') },
+  'two-creeks': { identity: alpine('two-creeks'), terrain: terrainFor('two-creeks') },
 };
 
 /**
