@@ -196,11 +196,33 @@ class Elevation:
 
 
 def normalise(name: str) -> str:
-    """Aspen writes `Banzai (Lower)`; OSM writes `Lower Banzai`. Collapse both."""
+    """Aspen writes `Banzai (Lower)`; OSM writes `Lower Banzai`. Collapse both to one key.
+
+    The qualifier is CANONICALISED, never deleted. Deleting it merges `Campground (Lower)` with
+    `Campground (Upper)` — and those two sit in different pods, so a single key would hand one
+    pod's geometry to another. That is the same crossed-identity failure `docs/adr/0001` exists
+    to remove, and the feed contains four such pairs: Campground, Green Cabin, Slot, Wildcat.
+    """
     s = name.lower()
-    s = re.sub(r"\b(lower|upper|middle)\b", " ", s)
+    qualifier = ""
+    for token in ("lower", "upper", "middle"):
+        if re.search(rf"\b{token}\b", s):
+            qualifier = token
+            s = re.sub(rf"\b{token}\b", " ", s)
+            break
     s = re.sub(r"[^a-z0-9]+", "", s)
-    return s
+    return f"{s}:{qualifier}" if qualifier else s
+
+
+def assert_no_cross_pod_collisions(run_to_pod: dict[str, str]) -> None:
+    """A normalised key that maps to two pods would silently misassign geometry. Fail loudly."""
+    buckets: dict[str, set[str]] = defaultdict(set)
+    for run, pod in run_to_pod.items():
+        buckets[normalise(run)].add(pod)
+    crossed = {key: pods for key, pods in buckets.items() if len(pods) > 1}
+    if crossed:
+        detail = "; ".join(f"{key} -> {sorted(pods)}" for key, pods in sorted(crossed.items()))
+        raise SystemExit(f"normalise() collides across pods, refusing to derive: {detail}")
 
 
 def aspen_run_to_pod() -> dict[str, str]:
@@ -247,7 +269,22 @@ def main() -> int:
     dem = Elevation(ZOOM, args.refresh)
     forest = Forest(fetch_forest(args.refresh))
     run_to_pod = aspen_run_to_pod()
+    assert_no_cross_pod_collisions(run_to_pod)
     lookup = {normalise(k): (k, v) for k, v in run_to_pod.items()}
+
+    # An OSM name with no Lower/Upper qualifier cannot match a qualified key directly. Accept it
+    # only when every qualified variant of that base sits in ONE pod, so the assignment is
+    # unambiguous; where the variants straddle two pods, leave it unmatched rather than guess.
+    base_pods: dict[str, set[str]] = defaultdict(set)
+    base_entry: dict[str, tuple[str, str]] = {}
+    for run, pod in run_to_pod.items():
+        base = normalise(run).split(":")[0]
+        base_pods[base].add(pod)
+        base_entry.setdefault(base, (run, pod))
+    unqualified = {
+        base: base_entry[base] for base, pods in base_pods.items()
+        if len(pods) == 1 and base not in lookup
+    }
 
     pods: dict[str, dict] = defaultdict(
         lambda: {
@@ -275,7 +312,8 @@ def main() -> int:
         geom = way.get("geometry") or []
         if not name or len(geom) < 2:
             continue
-        hit = lookup.get(normalise(name))
+        key = normalise(name)
+        hit = lookup.get(key) or unqualified.get(key.split(":")[0])
         if hit is None:
             unmatched.append(name)
             continue

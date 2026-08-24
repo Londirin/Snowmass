@@ -56,6 +56,7 @@
     "Weird Woods",
     "West I",
     "West II",
+    "Wildcat",
     "Willy's"
   ],
   "pods": {
@@ -67,12 +68,12 @@
           "NE"
         ],
         "share_by_aspect": {
-          "N": 0.5955,
-          "NE": 0.273,
-          "NW": 0.0727,
-          "E": 0.0494,
+          "N": 0.5876,
+          "NE": 0.2657,
+          "NW": 0.0943,
+          "E": 0.0431,
           "W": 0.0081,
-          "SE": 0.0014
+          "SE": 0.0012
         }
       },
       "elevation": {
@@ -80,18 +81,18 @@
         "top_ft": 10608
       },
       "tree_cover": {
-        "flanking": 0.629,
-        "on_centreline": 0.009,
-        "samples": 440
+        "flanking": 0.606,
+        "on_centreline": 0.008,
+        "samples": 496
       },
       "exposure": {
-        "mean_tpi_m": 0.8,
-        "samples": 220
+        "mean_tpi_m": -0.6,
+        "samples": 248
       },
       "coverage": {
-        "runs_matched": 10,
-        "segments_used": 220,
-        "vertical_sampled_ft": 9995
+        "runs_matched": 11,
+        "segments_used": 248,
+        "vertical_sampled_ft": 11445
       }
     },
     "Big Burn": {
@@ -138,29 +139,30 @@
           "NW"
         ],
         "share_by_aspect": {
-          "N": 0.4856,
-          "NW": 0.4154,
-          "W": 0.0623,
-          "NE": 0.0367
+          "N": 0.5409,
+          "NW": 0.3772,
+          "W": 0.0527,
+          "NE": 0.0269,
+          "SW": 0.0024
         }
       },
       "elevation": {
-        "bottom_ft": 8245,
+        "bottom_ft": 8244,
         "top_ft": 10597
       },
       "tree_cover": {
-        "flanking": 0.734,
-        "on_centreline": 0.016,
-        "samples": 122
+        "flanking": 0.683,
+        "on_centreline": 0.017,
+        "samples": 240
       },
       "exposure": {
-        "mean_tpi_m": -0.5,
-        "samples": 61
+        "mean_tpi_m": -3.0,
+        "samples": 120
       },
       "coverage": {
-        "runs_matched": 2,
-        "segments_used": 61,
-        "vertical_sampled_ft": 4128
+        "runs_matched": 5,
+        "segments_used": 120,
+        "vertical_sampled_ft": 7168
       }
     },
     "Cirque": {
@@ -228,7 +230,7 @@
         "samples": 185
       },
       "coverage": {
-        "runs_matched": 12,
+        "runs_matched": 16,
         "segments_used": 185,
         "vertical_sampled_ft": 8350
       }
@@ -263,7 +265,7 @@
         "samples": 332
       },
       "coverage": {
-        "runs_matched": 12,
+        "runs_matched": 13,
         "segments_used": 332,
         "vertical_sampled_ft": 13176
       }
@@ -308,34 +310,33 @@
       "aspect": {
         "dominant": "N",
         "present": [
-          "N",
-          "NE"
+          "N"
         ],
         "share_by_aspect": {
-          "N": 0.8019,
-          "NE": 0.1025,
-          "NW": 0.0755,
-          "W": 0.0196,
+          "N": 0.85,
+          "NE": 0.0824,
+          "NW": 0.0456,
+          "W": 0.0216,
           "E": 0.0004
         }
       },
       "elevation": {
-        "bottom_ft": 8886,
+        "bottom_ft": 10210,
         "top_ft": 11896
       },
       "tree_cover": {
-        "flanking": 0.447,
-        "on_centreline": 0.067,
-        "samples": 270
+        "flanking": 0.445,
+        "on_centreline": 0.084,
+        "samples": 214
       },
       "exposure": {
-        "mean_tpi_m": 2.7,
-        "samples": 135
+        "mean_tpi_m": 6.4,
+        "samples": 107
       },
       "coverage": {
         "runs_matched": 7,
-        "segments_used": 135,
-        "vertical_sampled_ft": 9574
+        "segments_used": 107,
+        "vertical_sampled_ft": 8125
       }
     },
     "Sam's Knob": {
@@ -343,36 +344,33 @@
         "dominant": "N",
         "present": [
           "N",
-          "NE",
-          "NW"
+          "NE"
         ],
         "share_by_aspect": {
-          "N": 0.5317,
-          "NE": 0.2489,
-          "NW": 0.1435,
-          "E": 0.0453,
-          "SE": 0.0193,
-          "W": 0.01,
-          "SW": 0.0014
+          "N": 0.4804,
+          "NE": 0.3458,
+          "NW": 0.0774,
+          "E": 0.0676,
+          "SE": 0.0288
         }
       },
       "elevation": {
-        "bottom_ft": 8244,
+        "bottom_ft": 9420,
         "top_ft": 10616
       },
       "tree_cover": {
-        "flanking": 0.573,
-        "on_centreline": 0.005,
-        "samples": 364
+        "flanking": 0.546,
+        "on_centreline": 0.0,
+        "samples": 220
       },
       "exposure": {
-        "mean_tpi_m": 8.5,
-        "samples": 182
+        "mean_tpi_m": 15.0,
+        "samples": 110
       },
       "coverage": {
-        "runs_matched": 12,
-        "segments_used": 182,
-        "vertical_sampled_ft": 12136
+        "runs_matched": 11,
+        "segments_used": 110,
+        "vertical_sampled_ft": 8142
       }
     },
     "Two Creeks": {
@@ -405,7 +403,7 @@
         "samples": 141
       },
       "coverage": {
-        "runs_matched": 5,
+        "runs_matched": 7,
         "segments_used": 141,
         "vertical_sampled_ft": 4588
       }
