@@ -31,8 +31,8 @@
   "method": {
     "aspect": "Bearing from the higher to the lower end of each run segment, weighted by that segment's vertical drop. Segments dropping under 1 m or shorter than 5 m are discarded as carrying no aspect signal.",
     "elevation": "Min and max sampled elevation over every matched run vertex in the pod.",
-    "exposure": "Mean topographic position index over each run segment's midpoint: the point's elevation minus the mean elevation of eight points 300 m around it. Positive is convex terrain that sheds snow to wind; negative is concave terrain that collects it.",
-    "tree_cover": "Share of points 40 m to either side of each run segment's midpoint that fall inside an OpenStreetMap wood or forest polygon. Measured beside the run rather than on it, because a cut run sits outside every polygon regardless of the timber around it. `on_centreline` is reported alongside as the control."
+    "exposure": "Length-weighted mean topographic position index over run segments: the point's elevation minus the mean elevation of eight points 300 m around it. Positive is convex terrain that sheds snow to wind; negative is concave terrain that collects it.",
+    "tree_cover": "Share of run length whose flanking points 40 m to either side fall inside an OpenStreetMap wood or forest polygon, weighted by segment length. Measured beside the run rather than on it, because a cut run sits outside every polygon regardless of the timber around it. `on_centreline` is reported alongside as the control."
   },
   "unmatched_osm_runs": [
     "A-Line",
@@ -80,12 +80,12 @@
         "top_ft": 10608
       },
       "tree_cover": {
-        "flanking": 0.632,
+        "flanking": 0.629,
         "on_centreline": 0.009,
         "samples": 440
       },
       "exposure": {
-        "mean_tpi_m": 0.6,
+        "mean_tpi_m": 0.8,
         "samples": 220
       },
       "coverage": {
@@ -116,12 +116,12 @@
         "top_ft": 12520
       },
       "tree_cover": {
-        "flanking": 0.378,
+        "flanking": 0.375,
         "on_centreline": 0.046,
         "samples": 518
       },
       "exposure": {
-        "mean_tpi_m": 2.4,
+        "mean_tpi_m": 3.8,
         "samples": 259
       },
       "coverage": {
@@ -149,12 +149,12 @@
         "top_ft": 10597
       },
       "tree_cover": {
-        "flanking": 0.73,
+        "flanking": 0.734,
         "on_centreline": 0.016,
         "samples": 122
       },
       "exposure": {
-        "mean_tpi_m": -0.0,
+        "mean_tpi_m": -0.5,
         "samples": 61
       },
       "coverage": {
@@ -184,12 +184,12 @@
         "top_ft": 12444
       },
       "tree_cover": {
-        "flanking": 0.291,
+        "flanking": 0.292,
         "on_centreline": 0.182,
         "samples": 220
       },
       "exposure": {
-        "mean_tpi_m": -12.7,
+        "mean_tpi_m": -13.7,
         "samples": 110
       },
       "coverage": {
@@ -219,12 +219,12 @@
         "top_ft": 10218
       },
       "tree_cover": {
-        "flanking": 0.424,
+        "flanking": 0.412,
         "on_centreline": 0.005,
         "samples": 370
       },
       "exposure": {
-        "mean_tpi_m": 4.8,
+        "mean_tpi_m": 4.3,
         "samples": 185
       },
       "coverage": {
@@ -254,12 +254,12 @@
         "top_ft": 11374
       },
       "tree_cover": {
-        "flanking": 0.545,
+        "flanking": 0.526,
         "on_centreline": 0.03,
         "samples": 664
       },
       "exposure": {
-        "mean_tpi_m": 3.3,
+        "mean_tpi_m": -0.9,
         "samples": 332
       },
       "coverage": {
@@ -290,12 +290,12 @@
         "top_ft": 12063
       },
       "tree_cover": {
-        "flanking": 0.47,
+        "flanking": 0.453,
         "on_centreline": 0.22,
         "samples": 100
       },
       "exposure": {
-        "mean_tpi_m": -0.3,
+        "mean_tpi_m": 1.2,
         "samples": 50
       },
       "coverage": {
@@ -324,12 +324,12 @@
         "top_ft": 11896
       },
       "tree_cover": {
-        "flanking": 0.393,
+        "flanking": 0.447,
         "on_centreline": 0.067,
         "samples": 270
       },
       "exposure": {
-        "mean_tpi_m": 3.9,
+        "mean_tpi_m": 2.7,
         "samples": 135
       },
       "coverage": {
@@ -361,12 +361,12 @@
         "top_ft": 10616
       },
       "tree_cover": {
-        "flanking": 0.555,
+        "flanking": 0.573,
         "on_centreline": 0.005,
         "samples": 364
       },
       "exposure": {
-        "mean_tpi_m": 8.9,
+        "mean_tpi_m": 8.5,
         "samples": 182
       },
       "coverage": {
@@ -396,12 +396,12 @@
         "top_ft": 9754
       },
       "tree_cover": {
-        "flanking": 0.699,
+        "flanking": 0.694,
         "on_centreline": 0.007,
         "samples": 282
       },
       "exposure": {
-        "mean_tpi_m": 0.1,
+        "mean_tpi_m": -0.5,
         "samples": 141
       },
       "coverage": {

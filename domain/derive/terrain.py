@@ -259,7 +259,10 @@ def main() -> int:
             "flank_tests": 0,
             "on_run_treed": 0,
             "on_run_tests": 0,
-            "tpi": [],
+            "tpi_len": 0.0,
+            "tpi_wsum": 0.0,
+            "flank_len": 0.0,
+            "flank_treed_len": 0.0,
         }
     )
     unmatched: list[str] = []
@@ -302,15 +305,22 @@ def main() -> int:
             # polygon whether or not it is bordered by timber.
             mid_lat = (a["lat"] + b["lat"]) / 2
             mid_lon = (a["lon"] + b["lon"]) / 2
-            pod_rec["tpi"].append(tpi(dem, mid_lat, mid_lon))
+            # Weight by segment length. OSM vertex density varies by a factor of five between
+            # runs, so a plain mean over segments lets finely-mapped runs outvote long ones —
+            # enough to flip a pod's sign on a scale that only spans about -13 to +9 m.
+            seg_len = haversine_m(a["lat"], a["lon"], b["lat"], b["lon"])
+            pod_rec["tpi_wsum"] += tpi(dem, mid_lat, mid_lon) * seg_len
+            pod_rec["tpi_len"] += seg_len
             pod_rec["on_run_tests"] += 1
             if forest.contains(mid_lat, mid_lon):
                 pod_rec["on_run_treed"] += 1
             for side in (deg - 90.0, deg + 90.0):
                 f_lat, f_lon = offset(mid_lat, mid_lon, side % 360.0, FLANK_M)
                 pod_rec["flank_tests"] += 1
+                pod_rec["flank_len"] += seg_len
                 if forest.contains(f_lat, f_lon):
                     pod_rec["flank_treed"] += 1
+                    pod_rec["flank_treed_len"] += seg_len
 
     result = {}
     for pod, rec in sorted(pods.items()):
@@ -334,8 +344,8 @@ def main() -> int:
                 "top_ft": round(max(rec["elev_m"]) * FEET_PER_METRE),
             },
             "tree_cover": {
-                "flanking": round(rec["flank_treed"] / rec["flank_tests"], 3)
-                if rec["flank_tests"]
+                "flanking": round(rec["flank_treed_len"] / rec["flank_len"], 3)
+                if rec["flank_len"]
                 else None,
                 "on_centreline": round(rec["on_run_treed"] / rec["on_run_tests"], 3)
                 if rec["on_run_tests"]
@@ -343,8 +353,8 @@ def main() -> int:
                 "samples": rec["flank_tests"],
             },
             "exposure": {
-                "mean_tpi_m": round(sum(rec["tpi"]) / len(rec["tpi"]), 1) if rec["tpi"] else None,
-                "samples": len(rec["tpi"]),
+                "mean_tpi_m": round(rec["tpi_wsum"] / rec["tpi_len"], 1) if rec["tpi_len"] else None,
+                "samples": rec["segments"],
             },
             "coverage": {
                 "runs_matched": len(rec["runs"]),
@@ -381,8 +391,8 @@ def main() -> int:
         "method": {
             "aspect": "Bearing from the higher to the lower end of each run segment, weighted by that segment's vertical drop. Segments dropping under 1 m or shorter than 5 m are discarded as carrying no aspect signal.",
             "elevation": "Min and max sampled elevation over every matched run vertex in the pod.",
-            "exposure": f"Mean topographic position index over each run segment's midpoint: the point's elevation minus the mean elevation of eight points {TPI_RADIUS_M:.0f} m around it. Positive is convex terrain that sheds snow to wind; negative is concave terrain that collects it.",
-            "tree_cover": f"Share of points {FLANK_M:.0f} m to either side of each run segment's midpoint that fall inside an OpenStreetMap wood or forest polygon. Measured beside the run rather than on it, because a cut run sits outside every polygon regardless of the timber around it. `on_centreline` is reported alongside as the control.",
+            "exposure": f"Length-weighted mean topographic position index over run segments: the point's elevation minus the mean elevation of eight points {TPI_RADIUS_M:.0f} m around it. Positive is convex terrain that sheds snow to wind; negative is concave terrain that collects it.",
+            "tree_cover": f"Share of run length whose flanking points {FLANK_M:.0f} m to either side fall inside an OpenStreetMap wood or forest polygon, weighted by segment length. Measured beside the run rather than on it, because a cut run sits outside every polygon regardless of the timber around it. `on_centreline` is reported alongside as the control.",
         },
         "unmatched_osm_runs": sorted(set(unmatched)),
         "pods": result,
