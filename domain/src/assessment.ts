@@ -15,7 +15,6 @@ export interface SkierConstraints {
   /** Weights, 0–2, 1 being neutral. */
   readonly preferTrees: number;
   readonly preferGroomers: number;
-  readonly avoidCrowds: number;
   readonly at: Timestamp;
   readonly horizonHours: number;
 }

@@ -27,57 +27,95 @@ available today.*
 
 ## 2. Factors, not terms
 
-The critiqued design had nine additive terms over four correlated inputs. Wind drove three of them,
+The first draft had nine additive terms over four correlated inputs. Wind drove three of them,
 snowfall four, temperature three. Adding correlated quantities does not make them independent — the
-score saturates and the weights, which are arbitrary anyway, end up deciding the answer.
+score saturates and the arbitrary weights end up deciding the answer.
 
-Instead: each **input is consumed by exactly one factor**, and factors combine.
+Instead: each **input is consumed by exactly one factor**.
 
-| Factor | Answers | Inputs (each appears once, here only) |
+| Factor | Answers | Inputs — each appears here and nowhere else |
 |---|---|---|
-| `surface` | What will be under my skis? | new snow + density, grooming state per run, melt/refreeze history, base depth |
-| `visibility` | Will I be able to see? | cloud cover, tree cover over eligible runs |
-| `comfort` | Will it be pleasant to stand in? | station wind and gusts, tree cover, TPI |
-| `fit` | Is this the terrain I asked for? | eligible-run difficulty mix, vertical, pitch, intent |
+| `surface` | What is under my skis? | new snow, snow density, per-run grooming state, melt/refreeze history, base depth, wind redistribution |
+| `visibility` | Can I see? | cloud cover, tree cover |
+| `comfort` | Is it pleasant to stand in? | station wind and gusts, air temperature, landform TPI |
+| `fit` | Is this the terrain I asked for? | eligible-run difficulty mix, vertical, sustained pitch |
 
-`access` is not a factor. It is a gate — see §5.
+Corrections against the first draft, both caught in review: tree cover was listed under two factors
+and wind under two. Tree cover now sits only in `visibility`; `comfort` uses TPI for terrain shape.
+Wind sits only in `comfort`, and the redistribution indicator inside `surface` consumes *snow*
+transport state, computed upstream, not the wind field again.
 
-Each factor returns a value in `[0, 1]` with a written meaning for the endpoints, plus the list of
-inputs it actually used.
+`access` is not a factor. It is a gate — §5.
+
+**Intent does not enter a factor.** In the first draft intent shaped `fit` *and* set the weights,
+which double-applied it on top of difficulty already gating runs. Intent sets weights only. `fit`
+measures terrain against the skier's declared ability and nothing else.
+
+### Factor range
+
+Every factor returns a value in `[0.05, 1]`, with written meanings for both endpoints.
+
+The floor is not cosmetic. A value of exactly zero annihilates the combination below and ties every
+affected pod at zero regardless of everything else. **Anything that genuinely means "do not go here"
+is a gate, not a factor value.** A factor is a quality signal among places you could ski; it never
+expresses impossibility.
 
 ### Combination
 
-Score is the **weighted geometric mean** of the factor values, with weights from the skier's intent.
+Score is the **weighted geometric mean** of the factor values.
 
-Geometric rather than arithmetic because skiing does not average. A day with perfect snow and a
-whiteout is not a good day and a half-marks answer would be wrong; it is a bad day, and the
-geometric mean says so without needing a special case. One factor near zero pulls the whole score
-down, which is the behaviour we want and which an additive model has to be bullied into.
+Geometric rather than arithmetic because skiing does not average: perfect snow plus a whiteout is a
+bad day, not a half-marks day, and the geometric mean says so without a special case.
 
-Weights come from intent and are bounded so that no factor can be zeroed out entirely — the skier
-may not care about visibility, but the model still may not pretend a whiteout is fine.
+Its cost, and this is a real limitation rather than a detail: the geometric mean treats factors as
+ratio-scale, so it assumes `visibility` 0.2 → 0.4 means a genuine doubling. Nothing establishes
+that, and a monotonic remapping that preserves each factor's ordinal meaning can still reverse the
+combined ranking. The mitigation is §3 — the answer only commits where the winner is robust — plus
+the ablation and metamorphic tests in §10. **If a factor's transform cannot be given a defensible
+ratio meaning, it belongs in `fit` as a filter or in §5 as a gate, not in the mean.**
 
-## 3. Missing inputs
+## 3. Uncertainty, missing inputs, ties, and abstention
 
-This is the defect the Codex review found in the previous draft, and it is the same class of bug as
-the hardcoded grooming constant this whole rebuild exists to remove.
+The first draft answered missing data with a shared factor set: drop any factor unavailable for any
+pod, score everyone on the remainder. Both reviewers rejected it independently, and they were right.
+It replaces one bias with a worse one — a single pod with a dead sensor deletes a discriminating
+factor for *every* pod, so the badly-observed pod degrades the whole field and can win the degraded
+comparison. Combined with the abstention rule it was even sharper: one pod with three dead sensors
+would force the whole mountain to abstain.
 
-**Omitting a term when its source is missing is arithmetically identical to setting it to zero.** In
-an additive model a missing penalty *rewards* the pod whose data failed to load. Labelling it in
-`confidence.gaps` describes a wrong ranking; it does not prevent one.
+**Every pod carries a score interval, and the answer commits only where one pod dominates.**
 
-The rule:
+1. For each pod, each **available** factor contributes its point value.
+2. Each **unavailable** factor contributes its full allowed range, `[0.05, 1]`. Nothing is dropped
+   and no weight is renormalised.
+3. Propagating those through the weighted geometric mean gives every pod a `[low, high]` interval.
+   A pod with complete data has a narrow interval; a pod with a dead sensor has a wide one.
+4. **Commit** to a pod when its `low` exceeds every other pod's `high`. It won under every
+   assumption its missing data could have taken.
+5. **Tie** when intervals overlap and the pods differ on no contrast axis (§8).
+6. **Contrast** when intervals overlap and they do differ on a contrast axis.
+7. **Abstain** when no pod's interval separates from the field and the spread is dominated by
+   missing inputs rather than by real differences.
 
-1. Compute the **shared factor set** — factors whose inputs are available for *every* candidate pod.
-2. Score all pods on exactly that set. A factor unavailable for any pod is dropped for all of them.
-3. A pod missing a **mandatory** input (access, difficulty, eligible runs) is excluded with
-   `kind: 'insufficient-data'` and the named missing input. It is never scored on what remains.
-4. **Abstain** when the shared set contains no live-condition factor. Ranking pods on terrain
-   constants alone reproduces the original defect in a new costume: it would rank the same way every
-   day of the year. The app says what it could not reach and shows what it does know.
+This is one mechanism doing four jobs, and each property falls out rather than being asserted:
 
-Every factor therefore carries its input list, and the response carries the shared set that was
-actually used.
+- Missing data cannot flatter a pod. It widens the interval, and a wide interval cannot dominate.
+- One pod's dead sensor does not touch any other pod's interval.
+- Ties and the contrast card get the interval §8 needed and the first draft never defined.
+- Abstention becomes a computed outcome, not a hand-set trigger.
+
+**Mandatory inputs still gate.** A pod missing access, difficulty, or eligible runs is excluded with
+`kind: 'insufficient-data'` and the named input — it is not given a wide interval, because those are
+not quality signals.
+
+**Factor identity is a signature, not a name.** Two pods' `surface` values are only comparable when
+they were computed by the same factor version from the same required-input set. A `surface` from
+grooming alone is a different quantity from one that also saw snowfall and density. Each factor
+therefore declares a version and a required-input signature; a mismatch makes the factor unavailable
+for that pod, which widens its interval rather than silently comparing unlike things.
+
+**Freshness gates before any of this.** Grooming and lift state have hard staleness limits. Past
+them they are unavailable, not stale-but-usable.
 
 ## 4. Eligible runs are the unit of computation
 
@@ -92,21 +130,36 @@ become a derived rollup rather than the primary record.
 
 ### Run roles
 
-A run that clears the difficulty gate is not necessarily skiing. Each run is classified from its own
-geometry:
+A run that clears the difficulty gate is not necessarily skiing. But geometry alone cannot decide
+every role, and the first draft claimed it could. An OSM polyline plus DEM elevations supports a
+**binary** classification and no more:
 
-| Role | Rule | Counts as skiing |
+| Role | Decided from | Rule |
 |---|---|---|
-| `descent` | mean pitch above the flat threshold and vertical above the minimum | yes |
-| `traverse` | low pitch, meaningful length | no |
-| `connector` | short, links two descents | no |
-| `egress` | terminates at a base area, low pitch | no |
+| `descent` | own geometry | sustained pitch ≥ 8° over ≥ 100 m contiguous, and total vertical ≥ 150 m |
+| `not-descent` | own geometry | everything else |
 
-Thresholds are declared as named constants with a stated basis, not scattered magic numbers.
+`connector` and `egress` are **not** derivable here: knowing a run links two descents, or terminates
+at a base area, requires the route graph deferred below. They are recorded as `not-descent` and the
+distinction is left for v2 rather than guessed.
 
-**A pod qualifies only if it has at least one eligible `descent`.** The flat-cat-track pod fails
-qualification and is excluded with a stated reason. This is the concrete case the previous draft got
-wrong.
+**Sustained pitch, not mean pitch.** A long green, a steep pitch with a flat runout, and a traverse
+cutting across a steep face can share a mean. The rule keys on the steepest contiguous stretch.
+
+Thresholds above are starting values with a stated basis — 8° is roughly the point below which a
+snowboarder stops moving, 150 m is about a third of the smallest lift-served vertical on the
+mountain. They are named constants, calibrated against a season, not magic numbers.
+
+**A pod qualifies only if it has at least two eligible `descent` runs.** Two, not one, because the
+answer contract in §8 promises 2–4 named runs as evidence; a one-descent pod could qualify and then
+fail to satisfy its own output. The flat-cat-track pod fails qualification with a stated reason.
+
+**Unmatched runs are a coverage gap, not an absence.** A feed run with no OSM geometry cannot be
+classified, so it counts toward neither qualification nor exclusion, and the pod's per-run coverage
+ratio is reported. Where coverage falls below a declared threshold the terrain factors are
+unavailable for that pod — which widens its interval under §3 rather than silently scoring it on a
+biased subset. This matters most for the gladed runs §12 already flags as disproportionately
+unmatched.
 
 ### Explicitly deferred
 
@@ -173,19 +226,26 @@ before melt scoring is ever reached.
 point your skis at, and because named runs make the recommendation checkable against the grooming
 report.
 
-**A contrast card, on a crisp rule.** The previous draft's phrasing — "different elevation band or
-shelter class, within a threshold, qualitatively different" — was hand-waving with no implementable
-meaning. The rule:
+**A contrast card, on a crisp rule.** The first draft's phrasing — "different elevation band or
+shelter class, within a threshold, qualitatively different" — had no implementable meaning, and the
+intervals it leaned on did not exist. They exist now (§3). The rule:
 
-- The candidate passed the same gates and was scored on the same shared factor set.
-- Its score interval **overlaps** the winner's, or sits within a declared margin.
+- The candidate passed the same gates and carries the same factor signatures (§3).
+- Its interval **overlaps** the winner's.
 - It differs from the winner on at least one **contrast axis**, computed over eligible runs, from a
-  closed set: `elevation`, `shelter`, `surface`.
-- Selection and tie-breaking are deterministic.
+  closed set: `elevation`, `landform`, `surface`. The axis is `landform`, not "shelter" — TPI
+  describes where snow collects, and §6 is explicit that this is not the same as being sheltered.
+- A difference counts only past a declared per-axis margin.
+- Selection and tie-breaking are deterministic: highest `low` bound, then highest `high`, then pod
+  id.
 
-**Ties are reported as ties.** If two candidates overlap within uncertainty and differ on no contrast
-axis, the honest output is that they are equivalent today. Committing to one and demoting the other
-to a card would be manufacturing a distinction the model cannot support.
+**Ties are reported as ties.** Overlapping intervals with no contrast-axis difference means the
+model cannot separate them today. Committing to one and demoting the other would manufacture a
+distinction the data does not support.
+
+**Abstention is shown, not hidden.** When §3 abstains, the app says which sources it could not reach
+and shows what it does know. It never falls through to a ranking on terrain constants — that would
+answer identically every day of the year, which is the original defect in a new costume.
 
 ## 9. What the engine owes the two modes
 
@@ -213,10 +273,14 @@ sequences where nothing but cloud cover moves.
 are checkable without labels and they catch real bugs:
 
 - raising wind must never raise a pod's score
+- widening any interval must never turn a tie into a commit
 - a pod strictly better on every input must never rank lower
 - adding a closed run must not change the ranking
-- removing an input must not improve any pod's rank relative to another (the missing-data property
-  from §3, asserted directly)
+- **missing data cannot manufacture a winner.** Removing an input must never let a pod commit that
+  would not have committed with the input present, across the input's whole allowed range. Stated
+  as "removing an input must not improve any pod's rank" the property was simply false, and review
+  caught it: if A leads on surface and B on visibility, removing surface *must* improve B. The
+  dominance formulation in §3 is what is actually testable.
 - overlapping snow windows (1/12/24h) must not compound — one storm counted once
 
 **Full-pipeline golden fixtures** for: winter conditions, missing and stale sources, a lift going on
@@ -238,14 +302,25 @@ membership in 10.9% — measured, not assumed, and reproduced independently.
 
 ## 12. Open questions
 
-- Which SNOTEL station represents Snowmass. The verified recipe covers Ivanhoe (`547:CO:SNTL`); the
-  charter names Independence Pass (`542:CO:SNTL`) and flags `531` as a different drainage. Neither is
-  confirmed as representative and base depth should not be trusted until one is.
-- Factor weights. Deliberately unset here. They are fitted or hand-tuned against a season, not
-  guessed in August.
-- Whether `fit` belongs in the geometric mean or acts as a gate. It behaves more like a filter than a
-  quality signal, and forcing it into the same combination may be wrong.
-- Tree cover is biased low for pods whose gladed runs are unmatched in OpenStreetMap. The unmatched
-  list is disproportionately glades and walls — `Glade One/Two/Three`, `Powerline Glades`,
-  `Hanging Valley Glades`, `Headwall`. Coverage per pod is recorded; the bias direction is known but
-  not yet corrected.
+- **Factor transforms and weights are unset.** Until both exist this is an architecture, not an
+  executable model. They are calibrated against a season, not guessed in August. This is the single
+  largest gap and it is deliberate.
+- **Which SNOTEL station represents Snowmass.** The verified recipe covers Ivanhoe (`547:CO:SNTL`);
+  the charter names Independence Pass (`542:CO:SNTL`) and flags `531` as a different drainage.
+  Neither is confirmed representative, so base depth stays out of `surface` until one is.
+- **No interpolation from station to run.** Wind, snowfall, and radiation are point measurements at
+  six stations; base depth is a point measurement elsewhere entirely. Treating a station reading as
+  true across a pod is an assumption the spec currently makes silently. It needs a stated
+  interpolation rule and a representativeness check per pod.
+- **Melt risk has no formula yet**, only a named input list. Shadow mode does not need one to ship,
+  but "computed and logged" is not a testable rule until it does.
+- **No outcome labels exist.** Shadow-mode archiving gives inputs to fit against; it gives nothing
+  to fit *to*. Promoting any weight needs a record of how the skiing actually was, which means a
+  deliberate logging habit from the first day of the season.
+- **Route reachability is deferred** (§4) and is the largest single piece of missing capability.
+- **Tree cover is biased low** for pods whose gladed runs are unmatched in OpenStreetMap — the
+  unmatched list is disproportionately glades and walls. Per-pod coverage is reported and §4 makes
+  low coverage widen the interval rather than pass silently, but the underlying bias is uncorrected.
+- **The Cirque access edge is `estimated`**, and its own provenance says to confirm it against the
+  trail map before it drives an answer. §5 calls gates operational truth, so this edge does not yet
+  meet the standard the spec sets for it.

@@ -41,16 +41,23 @@ export interface ElevationRange {
 /**
  * Topographic position index, in metres: the pod's mean height above its own surroundings.
  *
- * Positive is convex — a ridge or shoulder, where wind strips snow off and flat light has nothing
- * to bounce from. Negative is concave — a bowl or gully that collects wind-drifted snow and gives
- * some shelter. A continuous measurement replaces the `low`/`medium`/`high` label the retired
- * catalog carried, because the label was a lossy encoding of exactly this quantity, hand-guessed.
+ * Positive is convex — a ridge or shoulder, where wind strips snow away. Negative is concave — a
+ * bowl or gully where wind-drifted snow collects. It describes snow DEPOSITION, not shelter, and
+ * the two come apart: Cirque reads -13.7 m and is above treeline. A continuous measurement
+ * replaces the hand-guessed `low`/`medium`/`high` label the retired catalog carried.
  */
-export type ExposureTpiMetres = number;
+export type LandformTpiMetres = number;
 
-/** Bands for display only. Never score off these — score off the metres. */
-export const exposureBand = (tpi: number): 'sheltered' | 'neutral' | 'exposed' =>
-  tpi <= -3 ? 'sheltered' : tpi >= 3 ? 'exposed' : 'neutral';
+/**
+ * Landform bands, for display only. Never score off these — score off the metres.
+ *
+ * Deliberately named for shape, not shelter. TPI measures where snow collects, which is not the
+ * same question as whether a place is pleasant to stand in: Cirque is strongly concave and also
+ * above treeline, so it collects wind-drifted snow while being exposed to everything. Calling a
+ * negative TPI "sheltered" would licence exactly that confusion.
+ */
+export const landformBand = (tpi: number): 'concave' | 'neutral' | 'convex' =>
+  tpi <= -3 ? 'concave' : tpi >= 3 ? 'convex' : 'neutral';
 
 /**
  * Per-season terrain description. Every field is a `Field<T>`, so an unpopulated one is a state
@@ -62,7 +69,7 @@ export interface TerrainProfile {
   readonly elevation: Field<ElevationRange>;
   /** 0–1. The share of the pod's terrain with skiable trees, which is what saves a flat-light day. */
   readonly treeCover: Field<number>;
-  readonly exposure: Field<ExposureTpiMetres>;
+  readonly landform: Field<LandformTpiMetres>;
   /** Free text for the things the numbers do not carry. Shown to nobody; read by whoever edits this. */
   readonly notes?: string | undefined;
 }

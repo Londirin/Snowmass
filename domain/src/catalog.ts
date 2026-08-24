@@ -75,7 +75,7 @@ const terrainFor = (podId: PodId, notes?: string): TerrainProfile => {
       aspect: unsourced(UNMEASURED),
       elevation: unsourced(UNMEASURED),
       treeCover: unsourced(UNMEASURED),
-      exposure: unsourced(UNMEASURED),
+      landform: unsourced(UNMEASURED),
       ...(notes === undefined ? {} : { notes }),
     };
   }
@@ -95,7 +95,7 @@ const terrainFor = (podId: PodId, notes?: string): TerrainProfile => {
       d.tree_cover.flanking === null
         ? unsourced(UNMEASURED)
         : derived(d.tree_cover.flanking, DERIVED_INPUTS, METHOD, DERIVED_ON),
-    exposure:
+    landform:
       d.exposure.mean_tpi_m === null
         ? unsourced(UNMEASURED)
         : derived(d.exposure.mean_tpi_m, DERIVED_INPUTS, METHOD, DERIVED_ON),
@@ -130,7 +130,7 @@ export const POD_CATALOG: Record<PodId, Pod> = {
     identity: alpine('cirque'),
     terrain: terrainFor(
       'cirque',
-      'Measured tree cover 0.29 and TPI -12.7 m: an above-treeline bowl, against the 0.9 tree cover the retired catalog carried.',
+      'Strongly concave and above treeline: the derivation gives it the lowest TPI and the lowest tree cover on the mountain, against the 0.9 tree cover the retired catalog carried. Figures live in terrain-derived.json so they cannot go stale here.',
     ),
   },
   'coney-express': {
